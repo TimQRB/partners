@@ -14,7 +14,19 @@ use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
 $root = dirname(__DIR__);
 
+// Handle language switcher via cookie
+if (isset($_GET['lang']) && in_array($_GET['lang'], ['ru', 'en'], true)) {
+    setcookie('app_lang', $_GET['lang'], time() + 86400 * 30, '/');
+    $_COOKIE['app_lang'] = $_GET['lang']; // populate immediately
+}
+$currentLang = $_COOKIE['app_lang'] ?? 'ru';
+
 error_reporting(E_ALL & ~E_DEPRECATED);
+
+require_once $root . '/src/autoload.php';
+// Boot translations
+require_once $root . '/src/Service/Lang.php';
+\App\Service\Lang::init($currentLang);
 
 putenv('APP_ENV=dev');
 $_ENV['APP_ENV'] = 'dev';

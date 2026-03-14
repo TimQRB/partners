@@ -18,7 +18,7 @@ $this->beginPage();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= Html::encode($this->getTitle() ?? 'International Partnerships & Projects') ?></title>
+    <title><?= Html::encode($this->getTitle() ?? \App\Service\Lang::t('site_title')) ?></title>
     <link
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
         rel="stylesheet">
@@ -51,8 +51,8 @@ $this->beginPage();
                     onerror="this.style.display='none'">
             </a>
             <div class="lang-switch-modern">
-                <a href="?lang=ru" class="lang-btn-modern active">RU</a>
-                <a href="?lang=en" class="lang-btn-modern">EN</a>
+                <a href="?lang=ru" class="lang-btn-modern <?= \App\Service\Lang::get() === 'ru' ? 'active' : '' ?>">RU</a>
+                <a href="?lang=en" class="lang-btn-modern <?= \App\Service\Lang::get() === 'en' ? 'active' : '' ?>">EN</a>
             </div>
         </div>
     </header>
@@ -61,7 +61,7 @@ $this->beginPage();
     </main>
     <footer class="landing-footer-modern">
         <div class="container text-center py-4">
-            <span class="footer-copy">© 2026 Kozybayev University</span>
+            <span class="footer-copy"><?= \App\Service\Lang::t('footer_copy') ?></span>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
