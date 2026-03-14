@@ -16,6 +16,12 @@ $root = dirname(__DIR__);
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 
+putenv('APP_ENV=dev');
+$_ENV['APP_ENV'] = 'dev';
+putenv('APP_DEBUG=1');
+$_ENV['APP_DEBUG'] = '1';
+putenv('APP_C3=false');
+$_ENV['APP_C3'] = 'false';
 require_once $root . '/src/autoload.php';
 
 if (Environment::appC3()) {

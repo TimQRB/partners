@@ -20,7 +20,7 @@ RUN install-php-extensions \
     pdo \
     pdo_mysql
 
-COPY docker/php-max-execution.ini /usr/local/etc/php/conf.d/99-maxexec.ini
+# COPY docker/php-max-execution.ini /usr/local/etc/php/conf.d/99-maxexec.ini
 
 ENV LC_ALL=C.UTF-8
 
@@ -29,8 +29,8 @@ ENV LC_ALL=C.UTF-8
 #
 
 FROM base AS dev
-ARG USER_ID=10001
-ARG GROUP_ID=10001
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 ARG USER_NAME=appuser
 ARG GROUP_NAME=appuser
 
@@ -41,13 +41,12 @@ COPY --from=composer /composer /usr/bin/composer
 
 # Based on https://frankenphp.dev/docs/docker/#running-as-a-non-root-user
 RUN \
-	groupadd --gid ${GROUP_ID} ${GROUP_NAME}; \
-    useradd --gid ${GROUP_ID} --uid ${USER_ID} ${GROUP_NAME}; \
-	# Add additional capability to bind to port 80 and 443 \
-	setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp; \
-	# Give write access to /data/caddy and /config/caddy \
-	chown -R ${USER_NAME}:${GROUP_NAME} /data/caddy && chown -R ${USER_NAME}:${GROUP_NAME} /config/caddy
-USER ${USER_NAME}
+    groupadd --gid 1000 appuser; \
+    useradd --gid 1000 --uid 1000 appuser; \
+    setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp; \
+    chown -R appuser:appuser /data/caddy && chown -R appuser:appuser /config/caddy
+
+USER appuser
 
 #
 # Production
