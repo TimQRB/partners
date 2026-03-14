@@ -1,32 +1,266 @@
-.admin-form-page { background: #eef1f3; min-height: 100vh; padding-bottom: 2rem; }
-.admin-form-page .admin-form-title { font-size: 1.5rem; font-weight: 600; color: #212529; margin-bottom: 1.5rem; }
-.admin-form-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e5e8eb; overflow: hidden; margin-bottom: 1.5rem; }
-.admin-form-card .card-header { background: #fff; border-bottom: 1px solid #e5e8eb; padding: 0.75rem 1.25rem; font-weight: 600; color: #212529; }
-.admin-form-teal-banner { background: #05a4ba; color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
-.admin-form-teal-placeholder { width: 60px; height: 60px; min-width: 60px; background: rgba(255,255,255,0.25); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.admin-form-teal-placeholder img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.admin-form-teal-banner .admin-form-banner-title { font-weight: 600; font-size: 1.1rem; margin: 0; }
-.admin-form-teal-banner .form-control { border-radius: 8px; }
-.admin-form-section-heading { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: #05a4ba; margin-bottom: 0.75rem; padding-bottom: 0.35rem; border-bottom: 2px solid #05a4ba; }
-.admin-form-card .card-body { padding: 1.25rem; }
-.admin-form-field { margin-bottom: 1rem; }
-.admin-form-field:last-child { margin-bottom: 0; }
-.admin-form-field .form-label { font-weight: 500; color: #495057; margin-bottom: 0.35rem; font-size: 0.9rem; }
-.admin-form-field .form-control, .admin-form-field .form-select { border-radius: 8px; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; color: #212529; }
-.admin-form-field .form-select option { color: #212529; background: #fff; }
-.admin-form-field .form-control:focus, .admin-form-field .form-select:focus { border-color: #05a4ba; box-shadow: 0 0 0 3px rgba(5,164,186,0.15); }
-.admin-form-field textarea.form-control { min-height: 120px; border-radius: 8px; }
-.admin-form-bullet-list { list-style: none; padding: 0; margin: 0; }
-.admin-form-bullet-item { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
-.admin-form-bullet-item .admin-form-bullet-dot { width: 10px; height: 10px; border-radius: 50%; background: #05a4ba; flex-shrink: 0; }
-.admin-form-bullet-item .admin-form-bullet-label { flex: 1; padding: 0.4rem 0.75rem; background: #fff; border: 1px solid #e5e8eb; border-radius: 8px; font-size: 0.9rem; }
-.admin-form-bullet-item input.form-check-input { margin: 0; margin-right: 0.5rem; }
-.admin-form-bullet-item label { margin: 0; cursor: pointer; flex: 1; padding: 0.4rem 0.75rem; background: #fff; border: 1px solid #e5e8eb; border-radius: 8px; font-size: 0.9rem; font-weight: 400; color: #212529; }
-.admin-form-bullet-item input:checked + label { border-color: #05a4ba; background: #f0f9fa; }
-.admin-form-other-wrap { margin-top: 0.75rem; }
-.admin-form-other-wrap .form-label { color: #212529; }
-.admin-form-other-wrap .form-control { border-radius: 8px; color: #212529; }
-.admin-form-actions { margin-top: 1.5rem; }
-.admin-form-actions .btn-primary { background: #05a4ba; border-color: #05a4ba; border-radius: 8px; padding: 0.5rem 1.25rem; }
-.admin-form-actions .btn-primary:hover { background: #048a9d; border-color: #048a9d; }
-.admin-form-actions .btn-outline-secondary { border-radius: 8px; }
+/**
+ * Админ-панель: форма редактирования проекта
+ * Единая дизайн-система (design-system.css)
+ * Цвета: #00B0C7 (акцент), #f8f9fa (фон), #ffffff (карточки)
+ */
+
+.admin-form-page {
+    background: var(--ku-bg-page, #f8f9fa);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+    font-family: var(--ku-font);
+}
+
+.admin-form-page .admin-form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ku-text-primary);
+    margin-bottom: 1.5rem;
+}
+
+/* ============================
+   Карточка-секция формы
+   ============================ */
+.admin-form-card {
+    background: var(--ku-bg-card);
+    border-radius: var(--ku-radius);
+    box-shadow: var(--ku-shadow-card);
+    border: 1px solid var(--ku-border-light);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+/* ============================
+   Header Section — баннер
+   ============================ */
+.admin-form-teal-banner {
+    background: var(--ku-primary);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.admin-form-teal-placeholder {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--ku-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+}
+
+.admin-form-teal-placeholder img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--ku-radius-sm);
+}
+
+.admin-form-teal-banner .form-control {
+    border-radius: var(--ku-radius-sm);
+}
+
+/* ============================
+   Fieldset-заголовки секций
+   ============================ */
+.admin-form-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1.25rem 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ku-primary);
+    border: none;
+    padding: 0;
+}
+
+.admin-form-section-heading::before,
+.admin-form-section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ku-border);
+}
+
+.admin-form-section-heading span {
+    white-space: nowrap;
+}
+
+.admin-form-card .card-body {
+    padding: 1.5rem;
+}
+
+/* ============================
+   Поля формы
+   ============================ */
+.admin-form-field {
+    margin-bottom: 1rem;
+}
+
+.admin-form-field:last-child {
+    margin-bottom: 0;
+}
+
+.admin-form-field .form-label {
+    font-weight: 500;
+    color: var(--ku-text-secondary);
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+}
+
+.admin-form-field .form-control,
+.admin-form-field .form-select {
+    border-radius: var(--ku-radius);
+    border: 1px solid var(--ku-border-light);
+    padding: 0.55rem 0.85rem;
+    color: var(--ku-text-primary);
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-form-field .form-control:focus,
+.admin-form-field .form-select:focus {
+    border-color: var(--ku-primary);
+    box-shadow: 0 0 0 3px var(--ku-primary-glow, rgba(0, 176, 199, 0.18));
+}
+
+.admin-form-field textarea.form-control {
+    min-height: 100px;
+}
+
+/* ============================
+   Чекбоксы — круглые индикаторы
+   ============================ */
+.admin-form-bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-form-bullet-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.admin-form-bullet-item .admin-form-bullet-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ku-primary);
+    flex-shrink: 0;
+}
+
+.admin-form-bullet-item input.form-check-input {
+    margin: 0;
+    accent-color: var(--ku-primary);
+}
+
+.admin-form-bullet-item label {
+    margin: 0;
+    cursor: pointer;
+    flex: 1;
+    padding: 0.55rem 0.85rem;
+    background: var(--ku-bg-card);
+    border: 1px solid var(--ku-border-light);
+    border-radius: var(--ku-radius);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--ku-text-primary);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.admin-form-bullet-item input:checked + label {
+    border-color: var(--ku-primary);
+    background: var(--ku-primary-light, rgba(0, 176, 199, 0.08));
+}
+
+.admin-form-other-wrap {
+    margin-top: 0.75rem;
+}
+
+.admin-form-other-wrap .form-control {
+    border-radius: var(--ku-radius);
+}
+
+/* ============================
+   Текстовые подсказки
+   ============================ */
+.admin-form-textarea-hint {
+    font-size: 0.85rem;
+    color: var(--ku-text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+/* ============================
+   JSON editor — стиль код-редактора
+   ============================ */
+.admin-form-json-editor {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    background: #1a2332;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+    border-radius: var(--ku-radius);
+    padding: 1rem;
+    min-height: 160px;
+}
+
+.admin-form-json-editor::placeholder {
+    color: #64748b;
+}
+
+.admin-form-json-editor:focus {
+    border-color: var(--ku-primary);
+    box-shadow: 0 0 0 3px var(--ku-primary-glow, rgba(0, 176, 199, 0.2));
+    outline: none;
+}
+
+/* ============================
+   Кнопки формы
+   ============================ */
+.admin-form-actions {
+    margin-top: 1.5rem;
+}
+
+.admin-form-actions .btn-primary {
+    background: var(--ku-primary);
+    border-color: var(--ku-primary);
+    border-radius: var(--ku-radius);
+    padding: 0.55rem 1.5rem;
+    font-weight: 600;
+}
+
+.admin-form-actions .btn-primary:hover {
+    background: var(--ku-primary-hover);
+    border-color: var(--ku-primary-hover);
+    box-shadow: 0 4px 12px var(--ku-primary-glow);
+}
+
+.admin-form-actions .btn-outline-secondary {
+    border-radius: var(--ku-radius);
+}
+
+/* ============================
+   Превью описания изображений
+   ============================ */
+.admin-form-description-preview {
+    border-radius: var(--ku-radius-sm) !important;
+    border: 1px solid var(--ku-border-light) !important;
+    transition: transform 0.2s ease;
+}
+
+.admin-form-description-preview:hover {
+    transform: scale(1.05);
+}

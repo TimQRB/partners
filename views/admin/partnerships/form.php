@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Model\Partnership;
 use Yiisoft\Html\Html;
 use Yiisoft\Router\UrlGeneratorInterface;
 
@@ -111,7 +112,7 @@ $areaOptions = [
 
         <div class="admin-form-card">
             <div class="card-body">
-                <h3 class="admin-form-section-heading">2. Контактное лицо</h3>
+                <h3 class="admin-form-section-heading"><span>2. Контактное лицо</span></h3>
                 <div class="admin-form-field">
                     <label class="form-label">Имя и фамилия <span class="text-danger">*</span></label>
                     <input type="text" name="contact_name" class="form-control" value="<?= Html::encode($model['contact_name'] ?? '') ?>" required>
@@ -137,7 +138,7 @@ $areaOptions = [
 
         <div class="admin-form-card">
             <div class="card-body">
-                <h3 class="admin-form-section-heading">3. Направления сотрудничества <span class="text-danger">*</span></h3>
+                <h3 class="admin-form-section-heading"><span>3. Направления сотрудничества <span class="text-danger">*</span></span></h3>
                 <ul class="admin-form-bullet-list">
                 <?php foreach ($coopOptions as $val => $label): ?>
                     <li class="admin-form-bullet-item">
@@ -156,7 +157,7 @@ $areaOptions = [
 
         <div class="admin-form-card">
             <div class="card-body">
-                <h3 class="admin-form-section-heading">4. Краткое описание предложения <span class="text-danger">*</span></h3>
+                <h3 class="admin-form-section-heading"><span>4. Краткое описание предложения <span class="text-danger">*</span></span></h3>
                 <div class="admin-form-field">
                     <textarea name="description" class="form-control" rows="5" placeholder="Свободный текст" required><?= Html::encode($model['description'] ?? '') ?></textarea>
                 </div>
@@ -187,7 +188,7 @@ $areaOptions = [
 
         <div class="admin-form-card">
             <div class="card-body">
-                <h3 class="admin-form-section-heading">5. Область деятельности <span class="text-danger">*</span></h3>
+                <h3 class="admin-form-section-heading"><span>5. Область деятельности <span class="text-danger">*</span></span></h3>
                 <ul class="admin-form-bullet-list">
                 <?php foreach ($areaOptions as $val => $label): ?>
                     <li class="admin-form-bullet-item">
@@ -206,7 +207,7 @@ $areaOptions = [
 
         <div class="admin-form-card">
             <div class="card-body">
-                <h3 class="admin-form-section-heading">6. Возможный формат взаимодействия <span class="text-danger">*</span></h3>
+                <h3 class="admin-form-section-heading"><span>6. Возможный формат взаимодействия <span class="text-danger">*</span></span></h3>
                 <?php
                 $formatDecoded = $model ? (is_string($model['interaction_format'] ?? '') ? json_decode($model['interaction_format'], true) : []) : [];
                 $formatDecoded = is_array($formatDecoded) ? $formatDecoded : [];
@@ -237,7 +238,43 @@ $areaOptions = [
 
         <div class="admin-form-card">
             <div class="card-body">
-                <h3 class="admin-form-section-heading">7. Дополнительные материалы</h3>
+                <h3 class="admin-form-section-heading"><span>7. Подзадачи проекта</span></h3>
+                <p class="admin-form-textarea-hint text-muted mb-2">Каждая строка — новый пункт. Отображаются на странице проекта.</p>
+                <?php
+                $subtasksDecoded = $model ? Partnership::decodeJson($model['subtasks'] ?? null) : [];
+                $subtasksText = is_array($subtasksDecoded) ? implode("\n", array_map(fn($v) => is_string($v) ? $v : (string) $v, $subtasksDecoded)) : '';
+                ?>
+                <textarea name="subtasks" class="form-control" rows="4" placeholder="Подзадача 1&#10;Подзадача 2"><?= Html::encode($subtasksText) ?></textarea>
+            </div>
+        </div>
+
+        <div class="admin-form-card">
+            <div class="card-body">
+                <h3 class="admin-form-section-heading"><span>8. Цели проекта</span></h3>
+                <p class="admin-form-textarea-hint text-muted mb-2">Каждая строка — новый пункт.</p>
+                <?php
+                $goalsDecoded = $model ? Partnership::decodeJson($model['goals'] ?? null) : [];
+                $goalsText = is_array($goalsDecoded) ? implode("\n", array_map(fn($v) => is_string($v) ? $v : (string) $v, $goalsDecoded)) : '';
+                ?>
+                <textarea name="goals" class="form-control" rows="4" placeholder="Цель 1&#10;Цель 2"><?= Html::encode($goalsText) ?></textarea>
+            </div>
+        </div>
+
+        <div class="admin-form-card">
+            <div class="card-body">
+                <h3 class="admin-form-section-heading"><span>9. Встречи и мероприятия</span></h3>
+                <p class="admin-form-textarea-hint text-muted mb-2">Формат JSON. Данные отображаются в Timeline на странице проекта.</p>
+                <?php
+                $eventsDecoded = $model ? Partnership::decodeJson($model['events'] ?? null) : [];
+                $eventsJson = is_array($eventsDecoded) ? Partnership::encodeJson($eventsDecoded) : '[]';
+                ?>
+                <textarea name="events" class="form-control admin-form-json-editor" rows="8" placeholder='[{"date":"12.05.2024","title":"Конференция по образованию","location":"Париж, Франция"}]'><?= Html::encode($eventsJson) ?></textarea>
+            </div>
+        </div>
+
+        <div class="admin-form-card">
+            <div class="card-body">
+                <h3 class="admin-form-section-heading"><span>10. Дополнительные материалы</span></h3>
                 <p class="small text-muted mb-2">Необязательно. Можно прикрепить документы (Word, PDF, презентации и др.), которые потом можно будет скачать на странице проекта.</p>
                 <input type="file" name="materials[]" class="form-control" multiple>
                 <?php
@@ -289,4 +326,20 @@ document.getElementById('org_type_select').addEventListener('change', function()
 if (document.getElementById('org_type_select').value === 'other') {
     document.getElementById('org_type_other').style.display = 'block';
 }
+// Валидация JSON для поля «Встречи»
+(function() {
+    var eventsField = document.querySelector('textarea[name="events"]');
+    if (eventsField) {
+        eventsField.addEventListener('blur', function() {
+            var val = this.value.trim();
+            if (val === '' || val === '[]') return;
+            try {
+                JSON.parse(val);
+                this.setCustomValidity('');
+            } catch (e) {
+                this.setCustomValidity('Неверный формат JSON. Пример: [{"date":"12.05.2024","title":"Событие","location":"Город"}]');
+            }
+        });
+    }
+})();
 </script>

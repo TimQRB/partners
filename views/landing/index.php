@@ -11,7 +11,7 @@ use Yiisoft\Router\UrlGeneratorInterface;
 ?>
 <section class="hero-section-modern">
     <div class="hero-overlay-modern"></div>
-    <div class="container hero-content-modern h-100 d-flex flex-column justify-content-center">
+    <div class="container hero-content-modern">
         <h1 class="hero-title-modern">International<br>Partnerships & Projects</h1>
     </div>
 </section>

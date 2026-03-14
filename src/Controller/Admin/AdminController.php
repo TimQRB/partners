@@ -177,6 +177,17 @@ final class AdminController
         if ($formatOther !== '') {
             $format[] = $formatOther;
         }
+        $subtasksRaw = trim((string) ($body['subtasks'] ?? ''));
+        $subtasks = $subtasksRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $subtasksRaw)))) : [];
+        $goalsRaw = trim((string) ($body['goals'] ?? ''));
+        $goals = $goalsRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $goalsRaw)))) : [];
+        $eventsRaw = trim((string) ($body['events'] ?? ''));
+        $events = [];
+        if ($eventsRaw !== '') {
+            $decoded = json_decode($eventsRaw, true);
+            $events = is_array($decoded) ? $decoded : [];
+        }
+
         return [
             'org_name' => trim((string) ($body['org_name'] ?? '')),
             'org_type' => $orgType,
@@ -192,6 +203,9 @@ final class AdminController
             'description' => trim((string) ($body['description'] ?? '')),
             'activity_areas' => Partnership::encodeJson($areas),
             'interaction_format' => Partnership::encodeJson($format),
+            'subtasks' => Partnership::encodeJson($subtasks),
+            'goals' => Partnership::encodeJson($goals),
+            'events' => Partnership::encodeJson($events),
             'data_consent' => $body['data_consent'] ?? '',
         ];
     }

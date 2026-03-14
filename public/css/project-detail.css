@@ -1,0 +1,534 @@
+/**
+ * Страница детальной информации о проекте
+ * Полный вывод данных из админки. Читаемый текст, увеличенные шрифты.
+ */
+
+/* ============================
+   Страница
+   ============================ */
+.project-detail-page {
+    background-color: #ffffff;
+    min-height: 100vh;
+    padding: 0 0 3rem;
+}
+
+/* Navbar — бирюзовый хедер */
+.project-detail-page .site-navbar {
+    background-color: var(--ku-primary, #00B0C7) !important;
+    position: relative !important;
+}
+
+.project-detail-page .navbar-brand-logo {
+    filter: none;
+    opacity: 1;
+}
+
+.project-detail-page .lang-btn-modern {
+    border-color: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    padding: 4px 14px;
+    font-size: 13px;
+}
+
+.project-detail-page .lang-btn-modern.active {
+    background-color: rgba(255,255,255,0.2);
+    color: #fff;
+    border-color: #fff;
+}
+
+.project-detail-page .lang-btn-modern:not(.active) {
+    color: rgba(255,255,255,0.8);
+    background-color: transparent;
+}
+
+.project-detail-page .lang-btn-modern:not(.active):hover {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
+.project-detail-page .landing-footer-modern {
+    background-color: #ffffff;
+}
+
+/* ============================
+   Контейнер
+   ============================ */
+.project-detail-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1.5rem 2rem;
+}
+
+/* ============================
+   Ссылка "Все проекты"
+   ============================ */
+.project-detail-back {
+    display: inline-block;
+    color: #888;
+    text-decoration: none;
+    font-size: 1rem;
+    margin: 1.5rem 0;
+    transition: color 0.2s;
+}
+
+.project-detail-back:hover {
+    color: var(--ku-primary, #00B0C7);
+}
+
+/* ============================
+   Главная карточка проекта
+   ============================ */
+.project-card-main {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Верхняя часть — бирюзовый */
+.project-card-top {
+    background: linear-gradient(135deg, #00B0C7 0%, #4dc9db 100%);
+    padding: 32px 34px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.project-card-logo {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.project-card-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.project-card-logo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px;
+}
+
+.project-card-header-text {
+    flex: 1;
+}
+
+.project-card-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.project-card-meta {
+    margin: 6px 0 0;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
+}
+
+/* Нижняя часть — описание */
+.project-card-bottom {
+    background: #fff;
+    padding: 28px 34px;
+}
+
+.project-card-description {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #444;
+}
+
+.project-card-description.is-empty {
+    color: #bbb;
+    font-style: italic;
+}
+
+/* Изображения к описанию */
+.project-desc-images {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.project-desc-img {
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    max-height: 300px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #eee;
+}
+
+.project-desc-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+/* ============================
+   Секция-карточка
+   ============================ */
+.project-section {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e9ecef;
+    padding: 28px 34px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* ============================
+   Fieldset-заголовок секции
+   ============================ */
+.project-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 22px;
+}
+
+.project-section-header::before,
+.project-section-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.project-section-header::before {
+    flex: 0;
+    width: 0;
+}
+
+.project-section-header h2 {
+    margin: 0;
+    color: var(--ku-primary, #00B0C7);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+/* ============================
+   Направления — сетка 2 колонки
+   ============================ */
+.directions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.direction-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.direction-chip .dot {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    background: var(--ku-primary, #00B0C7);
+}
+
+/* ============================
+   Подзадачи — нумерованный список
+   ============================ */
+.subtasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.subtask-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+}
+
+.subtask-num {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 6px;
+    background: var(--ku-primary, #00B0C7);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subtask-text {
+    flex: 1;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* ============================
+   Цели — блоки с иконкой
+   ============================ */
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.goal-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+}
+
+.goal-icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 6px;
+    background: #e0f4f7;
+}
+
+.goal-text {
+    flex: 1;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* ============================
+   Timeline встреч
+   ============================ */
+.timeline-list {
+    position: relative;
+    padding-left: 24px;
+}
+
+.timeline-list::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 24px;
+    bottom: 10px;
+    width: 2px;
+    background: #e0e0e0;
+}
+
+.timeline-event {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-event:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-event-dot {
+    position: absolute;
+    left: -24px;
+    top: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ku-primary, #00B0C7);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px var(--ku-primary, #00B0C7);
+}
+
+.timeline-event-date {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ku-primary, #00B0C7);
+    margin: 0 0 4px;
+}
+
+.timeline-event-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 2px;
+}
+
+.timeline-event-location {
+    font-size: 0.95rem;
+    color: #888;
+    margin: 0;
+}
+
+/* ============================
+   Сайт организации
+   ============================ */
+.project-website-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.05rem;
+    color: var(--ku-primary, #00B0C7);
+    text-decoration: none;
+    word-break: break-all;
+    transition: opacity 0.2s;
+}
+
+.project-website-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* ============================
+   Дополнительные материалы
+   ============================ */
+.materials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.material-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.material-item:hover {
+    border-color: var(--ku-primary, #00B0C7);
+    background: rgba(0, 176, 199, 0.04);
+    color: var(--ku-primary, #00B0C7);
+}
+
+.material-item i {
+    font-size: 1.25rem;
+    color: var(--ku-primary, #00B0C7);
+}
+
+/* ============================
+   Контактное лицо
+   ============================ */
+.contact-name {
+    margin: 0 0 2px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.contact-position {
+    margin: 0 0 14px;
+    font-size: 1rem;
+    color: #888;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: var(--ku-primary, #00B0C7);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.contact-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+
+.contact-link i {
+    font-size: 1.1rem;
+}
+
+.contact-method {
+    margin: 6px 0 0;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+/* ============================
+   Адаптивность
+   ============================ */
+@media (max-width: 768px) {
+    .project-detail-container {
+        padding: 0 1rem 2rem;
+    }
+
+    .project-card-top {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px 20px;
+    }
+
+    .project-card-logo {
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+    }
+
+    .project-card-title {
+        font-size: 1.35rem;
+    }
+
+    .project-card-bottom {
+        padding: 24px 20px;
+    }
+
+    .project-section {
+        padding: 24px 20px;
+    }
+
+    .directions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-desc-images {
+        grid-template-columns: 1fr;
+    }
+
+    .project-section-header h2 {
+        font-size: 0.75rem;
+    }
+}

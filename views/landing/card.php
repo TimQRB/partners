@@ -9,12 +9,14 @@ use Yiisoft\Router\UrlGeneratorInterface;
 /** @var array $card */
 /** @var UrlGeneratorInterface $urlGenerator */
 
-$coop = Partnership::decodeJson($card['cooperation_directions'] ?? null);
-$areas = Partnership::decodeJson($card['activity_areas'] ?? null);
-$format = Partnership::decodeJson($card['interaction_format'] ?? null);
-$materials = Partnership::decodeJson($card['materials'] ?? null);
-$descImages = Partnership::decodeJson($card['description_images'] ?? null);
+// --- Header ---
+$header = [
+    'title' => $card['org_name'] ?? '',
+    'description' => $card['description'] ?? '',
+    'image' => $card['file_path'] ?? null,
+];
 
+// --- Тип организации ---
 $orgTypes = [
     'company' => 'Компания',
     'university' => 'Университет',
@@ -22,6 +24,13 @@ $orgTypes = [
     'government' => 'Государственная организация',
     'ngo' => 'НКО',
 ];
+$orgTypeKey = (string) ($card['org_type'] ?? '');
+$orgTypeLabel = $orgTypes[$orgTypeKey] ?? ($orgTypeKey !== '' ? $orgTypeKey : '');
+
+// --- Направления (объединяем cooperation_directions + activity_areas + interaction_format) ---
+$coopDirections = Partnership::decodeJson($card['cooperation_directions'] ?? null);
+$activityAreas = Partnership::decodeJson($card['activity_areas'] ?? null);
+$formatItems = Partnership::decodeJson($card['interaction_format'] ?? null);
 
 $coopOptions = [
     'research' => 'Научные исследования',
@@ -32,7 +41,6 @@ $coopOptions = [
     'grants' => 'Гранты/финансирование',
     'exchange' => 'Обмен студентами или преподавателями',
 ];
-
 $areaOptions = [
     'it' => 'IT/технологии',
     'manufacturing' => 'Производство',
@@ -42,7 +50,6 @@ $areaOptions = [
     'agriculture' => 'Сельское хозяйство',
     'finance' => 'Финансы',
 ];
-
 $formatOptions = [
     'joint_research' => 'Совместные исследования',
     'contract_research' => 'Заказные исследования',
@@ -52,169 +59,263 @@ $formatOptions = [
     'student_internships' => 'Практика студентов',
 ];
 
-$imgUrl = null;
-if (!empty($card['file_path'])) {
-    $imgUrl = '/serve/partnership?f=' . rawurlencode(basename(str_replace('\\', '/', (string) $card['file_path'])));
+$collaborationLabels = [];
+foreach ($coopDirections as $item) {
+    $key = is_string($item) ? $item : '';
+    if ($key !== '') {
+        $label = $coopOptions[$key] ?? $key;
+        if (!in_array($label, $collaborationLabels, true)) {
+            $collaborationLabels[] = $label;
+        }
+    }
+}
+foreach ($activityAreas as $item) {
+    $key = is_string($item) ? $item : '';
+    if ($key !== '') {
+        $label = $areaOptions[$key] ?? $key;
+        if (!in_array($label, $collaborationLabels, true)) {
+            $collaborationLabels[] = $label;
+        }
+    }
+}
+foreach ($formatItems as $item) {
+    $key = is_string($item) ? $item : '';
+    if ($key !== '') {
+        $label = $formatOptions[$key] ?? $key;
+        if (!in_array($label, $collaborationLabels, true)) {
+            $collaborationLabels[] = $label;
+        }
+    }
 }
 
-$orgTypeKey = (string) ($card['org_type'] ?? '');
-$orgTypeLabel = $orgTypes[$orgTypeKey] ?? ($orgTypeKey !== '' ? $orgTypeKey : null);
-?>
-<div class="card-detail-page container py-4">
-    <a href="/" class="card-detail-back">← Все проекты</a>
+// --- Подзадачи ---
+$subtasks = Partnership::decodeJson($card['subtasks'] ?? null);
+$subtasks = is_array($subtasks) ? array_values(array_filter($subtasks, fn($v) => $v !== '' && $v !== null)) : [];
 
-    <header class="card-detail-hero">
-        <div class="card-detail-hero-inner">
-            <?php if ($imgUrl): ?>
-                <div class="card-detail-hero-logo">
-                    <img src="<?= Html::encode($imgUrl) ?>" alt="">
+// --- Цели ---
+$goals = Partnership::decodeJson($card['goals'] ?? null);
+$goals = is_array($goals) ? array_values(array_filter($goals, fn($v) => $v !== '' && $v !== null)) : [];
+
+// --- Встречи ---
+$events = Partnership::decodeJson($card['events'] ?? null);
+$events = is_array($events) ? $events : [];
+
+// --- Описание: изображения ---
+$descImages = Partnership::decodeJson($card['description_images'] ?? null);
+$descImages = is_array($descImages) ? array_filter($descImages, fn($v) => is_string($v) && $v !== '') : [];
+
+// --- Дополнительные материалы ---
+$materials = Partnership::decodeJson($card['materials'] ?? null);
+$materials = is_array($materials) ? array_filter($materials, fn($v) => is_string($v) && $v !== '') : [];
+
+// --- Лого ---
+$imgUrl = null;
+if (!empty($header['image'])) {
+    $filePath = (string) $header['image'];
+    if (str_starts_with($filePath, '/uploads/')) {
+        $imgUrl = $filePath;
+    } else {
+        $imgUrl = '/serve/partnership?f=' . rawurlencode(basename(str_replace('\\', '/', $filePath)));
+    }
+}
+?>
+<div class="project-detail-page">
+    <div class="project-detail-container">
+
+        <!-- Ссылка назад -->
+        <a href="/" class="project-detail-back">← Все проекты</a>
+
+        <!-- ========== Главная карточка проекта ========== -->
+        <div class="project-card-main">
+            <div class="project-card-top">
+                <div class="project-card-logo">
+                    <?php if ($imgUrl): ?>
+                        <img src="<?= Html::encode($imgUrl) ?>" alt="">
+                    <?php else: ?>
+                        <div class="project-card-logo-placeholder"></div>
+                    <?php endif; ?>
                 </div>
-            <?php endif; ?>
-            <div class="card-detail-hero-text">
-                <h1 class="card-detail-hero-title"><?= Html::encode($card['org_name'] ?? '') ?></h1>
-                <?php if ($orgTypeLabel): ?>
-                    <p class="card-detail-hero-meta"><?= Html::encode($orgTypeLabel) ?></p>
-                <?php endif; ?>
-                <?php if (!empty($card['country']) || !empty($card['city'])): ?>
-                    <p class="card-detail-hero-meta">
-                        <?= Html::encode(trim((string) ($card['country'] ?? ''))) ?>
-                        <?php if (!empty($card['city'])): ?>, <?= Html::encode($card['city']) ?><?php endif; ?>
-                    </p>
+                <div class="project-card-header-text">
+                    <h1 class="project-card-title"><?= Html::encode($header['title'] ?: 'Имя проекта') ?></h1>
+                    <?php if ($orgTypeLabel !== '' || !empty($card['country']) || !empty($card['city'])): ?>
+                        <p class="project-card-meta">
+                            <?php if ($orgTypeLabel !== ''): ?>
+                                <span><?= Html::encode($orgTypeLabel) ?></span>
+                            <?php endif; ?>
+                            <?php if (!empty($card['country']) || !empty($card['city'])): ?>
+                                <?php if ($orgTypeLabel !== ''): ?> · <?php endif; ?>
+                                <span><?= Html::encode(trim(($card['country'] ?? '') . ', ' . ($card['city'] ?? ''), ', ')) ?></span>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="project-card-bottom">
+                <p class="project-card-description <?= $header['description'] === '' ? 'is-empty' : '' ?>">
+                    <?= $header['description'] !== '' ? nl2br(Html::encode($header['description'])) : 'Описание проекта не заполнено.' ?>
+                </p>
+
+                <?php if (!empty($descImages)): ?>
+                    <div class="project-desc-images">
+                        <?php foreach ($descImages as $src): ?>
+                            <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
+                        <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
-    </header>
 
-    <div class="card-detail-body">
-        <?php if (!empty($card['description']) || !empty($descImages)): ?>
-            <section class="card-detail-section">
-                <h2 class="card-detail-section-title">Описание</h2>
-                <div class="card-detail-section-content">
-                    <?php if (!empty($card['description'])): ?>
-                        <div class="card-detail-description"><?= nl2br(Html::encode($card['description'])) ?></div>
-                    <?php endif; ?>
-                    <?php if (!empty($descImages)): ?>
-                        <div class="card-detail-description-images">
-                            <?php foreach ($descImages as $src): ?>
-                                <?php if (!is_string($src) || $src === '') { continue; } ?>
-                                <img src="<?= Html::encode($src) ?>" alt="" class="card-detail-desc-img" loading="lazy">
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
+        <!-- ========== Сайт организации ========== -->
         <?php if (!empty($card['website'])): ?>
-            <section class="card-detail-section">
-                <h2 class="card-detail-section-title">Сайт организации</h2>
-                <div class="card-detail-section-content">
-                    <a href="<?= Html::encode($card['website']) ?>" target="_blank" rel="noopener" class="card-detail-link">
-                        <?= Html::encode($card['website']) ?>
-                    </a>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Сайт организации</h2>
+                </div>
+                <a href="<?= Html::encode($card['website']) ?>" target="_blank" rel="noopener" class="project-website-link">
+                    <?= Html::encode($card['website']) ?>
+                </a>
+            </section>
+        <?php endif; ?>
+
+        <!-- ========== Направления сотрудничества ========== -->
+        <?php if (!empty($collaborationLabels)): ?>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Направления сотрудничества</h2>
+                </div>
+                <div class="directions-grid">
+                    <?php foreach ($collaborationLabels as $label): ?>
+                        <div class="direction-chip">
+                            <span class="dot"></span>
+                            <span><?= Html::encode($label) ?></span>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
 
-        <section class="card-detail-section">
-            <h2 class="card-detail-section-title">Направления сотрудничества</h2>
-            <div class="card-detail-section-content">
-                <?php if (!empty($coop)): ?>
-                    <ul class="card-detail-list">
-                        <?php foreach ($coop as $item): ?>
-                            <?php $key = is_string($item) ? $item : ''; if ($key === '') { continue; } ?>
-                            <?php $label = $coopOptions[$key] ?? $key; ?>
-                            <li><?= Html::encode($label) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php else: ?>
-                    <p class="card-detail-muted">—</p>
-                <?php endif; ?>
-            </div>
-        </section>
-
-        <section class="card-detail-section">
-            <h2 class="card-detail-section-title">Область деятельности</h2>
-            <div class="card-detail-section-content">
-                <?php if (!empty($areas)): ?>
-                    <ul class="card-detail-list">
-                        <?php foreach ($areas as $item): ?>
-                            <?php $key = is_string($item) ? $item : ''; if ($key === '') { continue; } ?>
-                            <?php $label = $areaOptions[$key] ?? $key; ?>
-                            <li><?= Html::encode($label) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php else: ?>
-                    <p class="card-detail-muted">—</p>
-                <?php endif; ?>
-            </div>
-        </section>
-
-        <?php if (!empty($format)): ?>
-            <section class="card-detail-section">
-                <h2 class="card-detail-section-title">Возможный формат взаимодействия</h2>
-                <div class="card-detail-section-content">
-                    <ul class="card-detail-list">
-                        <?php foreach ($format as $item): ?>
-                            <?php $key = is_string($item) ? $item : ''; if ($key === '') { continue; } ?>
-                            <?php $label = $formatOptions[$key] ?? $key; ?>
-                            <li><?= Html::encode($label) ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+        <!-- ========== Подзадачи проекта ========== -->
+        <?php if (!empty($subtasks)): ?>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Подзадачи проекта</h2>
+                </div>
+                <div class="subtasks-list">
+                    <?php foreach ($subtasks as $i => $text): ?>
+                        <div class="subtask-row">
+                            <div class="subtask-num"><?= $i + 1 ?></div>
+                            <div class="subtask-text"><?= Html::encode(is_string($text) ? $text : (string) $text) ?></div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
 
+        <!-- ========== Цели проекта ========== -->
+        <?php if (!empty($goals)): ?>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Цели проекта</h2>
+                </div>
+                <div class="goals-list">
+                    <?php foreach ($goals as $goal): ?>
+                        <div class="goal-row">
+                            <div class="goal-icon"></div>
+                            <div class="goal-text"><?= Html::encode(is_string($goal) ? $goal : (string) $goal) ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- ========== Встречи и мероприятия ========== -->
+        <?php if (!empty($events)): ?>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Встречи и мероприятия</h2>
+                </div>
+                <div class="timeline-list">
+                    <?php foreach ($events as $event): ?>
+                        <?php
+                        $ev = is_array($event) ? $event : [];
+                        $date     = $ev['date'] ?? $ev['date_event'] ?? '';
+                        $title    = $ev['title'] ?? $ev['name'] ?? '';
+                        $location = $ev['location'] ?? $ev['city'] ?? $ev['place'] ?? '';
+                        if ($title === '' && $date === '') { continue; }
+                        ?>
+                        <div class="timeline-event">
+                            <span class="timeline-event-dot"></span>
+                            <?php if ($date): ?>
+                                <p class="timeline-event-date"><?= Html::encode($date) ?></p>
+                            <?php endif; ?>
+                            <p class="timeline-event-title"><?= Html::encode($title ?: '—') ?></p>
+                            <?php if ($location): ?>
+                                <p class="timeline-event-location"><?= Html::encode($location) ?></p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- ========== Дополнительные материалы ========== -->
         <?php if (!empty($materials)): ?>
-            <section class="card-detail-section">
-                <h2 class="card-detail-section-title">Дополнительные материалы</h2>
-                <div class="card-detail-section-content">
-                    <ul class="card-detail-files">
-                        <?php foreach ($materials as $path): ?>
-                            <?php if (!is_string($path) || $path === '') { continue; } ?>
-                            <?php
-                            $name = basename(str_replace('\\', '/', $path));
-                            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-                            $iconClass = 'bi-file-earmark';
-                            if ($ext === 'pdf') {
-                                $iconClass = 'bi-file-pdf';
-                            } elseif (in_array($ext, ['doc', 'docx'], true)) {
-                                $iconClass = 'bi-file-word';
-                            } elseif (in_array($ext, ['ppt', 'pptx'], true)) {
-                                $iconClass = 'bi-file-ppt';
-                            }
-                            ?>
-                            <li class="card-detail-file-item">
-                                <i class="bi <?= Html::encode($iconClass) ?> card-detail-file-icon" aria-hidden="true"></i>
-                                <a href="<?= Html::encode($path) ?>" target="_blank" rel="noopener" download class="card-detail-link"><?= Html::encode($name) ?></a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Дополнительные материалы</h2>
+                </div>
+                <div class="materials-list">
+                    <?php foreach ($materials as $path): ?>
+                        <?php
+                        $name = basename(str_replace('\\', '/', $path));
+                        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                        $iconClass = 'bi-file-earmark';
+                        if ($ext === 'pdf') { $iconClass = 'bi-file-pdf'; }
+                        elseif (in_array($ext, ['doc', 'docx'], true)) { $iconClass = 'bi-file-word'; }
+                        elseif (in_array($ext, ['ppt', 'pptx'], true)) { $iconClass = 'bi-file-ppt'; }
+                        ?>
+                        <a href="<?= Html::encode($path) ?>" target="_blank" rel="noopener" download class="material-item">
+                            <i class="bi <?= Html::encode($iconClass) ?>" aria-hidden="true"></i>
+                            <span><?= Html::encode($name) ?></span>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
 
-        <?php if (!empty($card['contact_name']) || !empty($card['contact_email']) || !empty($card['contact_phone']) || !empty($card['contact_method'])): ?>
-            <section class="card-detail-section card-detail-contact">
-                <h2 class="card-detail-section-title">Контакт</h2>
-                <div class="card-detail-section-content">
+        <!-- ========== Контактное лицо ========== -->
+        <?php if (!empty($card['contact_name']) || !empty($card['contact_email']) || !empty($card['contact_phone'])): ?>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2>Контактное лицо</h2>
+                </div>
+                <div class="contact-info">
                     <?php if (!empty($card['contact_name'])): ?>
-                        <p class="card-detail-contact-name"><?= Html::encode($card['contact_name']) ?></p>
+                        <p class="contact-name"><?= Html::encode($card['contact_name']) ?></p>
                     <?php endif; ?>
                     <?php if (!empty($card['contact_position'])): ?>
-                        <p class="card-detail-muted mb-1"><?= Html::encode($card['contact_position']) ?></p>
+                        <p class="contact-position"><?= Html::encode($card['contact_position']) ?></p>
                     <?php endif; ?>
-                    <?php if (!empty($card['contact_email'])): ?>
-                        <p class="mb-1"><a href="mailto:<?= Html::encode($card['contact_email']) ?>" class="card-detail-link"><?= Html::encode($card['contact_email']) ?></a></p>
-                    <?php endif; ?>
-                    <?php if (!empty($card['contact_phone'])): ?>
-                        <p class="mb-1"><?= Html::encode($card['contact_phone']) ?></p>
-                    <?php endif; ?>
-                    <?php if (!empty($card['contact_method'])): ?>
-                        <p class="card-detail-muted mb-0">Предпочитаемый способ связи: <?= Html::encode($card['contact_method']) ?></p>
-                    <?php endif; ?>
+                    <div class="contact-details">
+                        <?php if (!empty($card['contact_email'])): ?>
+                            <a href="mailto:<?= Html::encode($card['contact_email']) ?>" class="contact-link">
+                                <i class="bi bi-envelope" aria-hidden="true"></i>
+                                <?= Html::encode($card['contact_email']) ?>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (!empty($card['contact_phone'])): ?>
+                            <a href="tel:<?= Html::encode($card['contact_phone']) ?>" class="contact-link">
+                                <i class="bi bi-telephone" aria-hidden="true"></i>
+                                <?= Html::encode($card['contact_phone']) ?>
+                            </a>
+                        <?php endif; ?>
+                        <?php if (!empty($card['contact_method'])): ?>
+                            <p class="contact-method">Предпочитаемый способ связи: <?= Html::encode($card['contact_method']) ?></p>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </section>
         <?php endif; ?>
+
     </div>
 </div>
