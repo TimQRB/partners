@@ -263,12 +263,44 @@ $areaOptions = [
         <div class="admin-form-card">
             <div class="card-body">
                 <h3 class="admin-form-section-heading"><span>9. Встречи и мероприятия</span></h3>
-                <p class="admin-form-textarea-hint text-muted mb-2">Формат JSON. Данные отображаются в Timeline на странице проекта.</p>
+                <p class="admin-form-textarea-hint text-muted mb-3">Добавьте мероприятия — они отобразятся в Timeline на странице проекта.</p>
                 <?php
                 $eventsDecoded = $model ? Partnership::decodeJson($model['events'] ?? null) : [];
-                $eventsJson = is_array($eventsDecoded) ? Partnership::encodeJson($eventsDecoded) : '[]';
+                $eventsDecoded = is_array($eventsDecoded) ? $eventsDecoded : [];
                 ?>
-                <textarea name="events" class="form-control admin-form-json-editor" rows="8" placeholder='[{"date":"12.05.2024","title":"Конференция по образованию","location":"Париж, Франция"}]'><?= Html::encode($eventsJson) ?></textarea>
+                <div id="events-container">
+                    <?php if (!empty($eventsDecoded)): ?>
+                        <?php foreach ($eventsDecoded as $i => $ev): ?>
+                            <?php
+                            $ev = is_array($ev) ? $ev : [];
+                            $date = $ev['date'] ?? $ev['date_event'] ?? '';
+                            $title = $ev['title'] ?? $ev['name'] ?? '';
+                            $location = $ev['location'] ?? $ev['city'] ?? $ev['place'] ?? '';
+                            ?>
+                            <div class="event-row mb-3 p-3 border rounded-3 bg-light position-relative">
+                                <button type="button" class="btn-close position-absolute top-0 end-0 m-2 event-remove-btn" aria-label="Удалить"></button>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label small mb-1">Дата</label>
+                                        <input type="text" class="form-control event-date" placeholder="12.05.2024" value="<?= Html::encode($date) ?>">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-label small mb-1">Название</label>
+                                        <input type="text" class="form-control event-title" placeholder="Конференция по образованию" value="<?= Html::encode($title) ?>">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small mb-1">Место</label>
+                                        <input type="text" class="form-control event-location" placeholder="Париж, Франция" value="<?= Html::encode($location) ?>">
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <button type="button" id="add-event-btn" class="btn btn-outline-primary btn-sm mt-1">
+                    <i class="bi bi-plus-circle me-1"></i> Добавить мероприятие
+                </button>
+                <input type="hidden" name="events" id="events-hidden" value="<?= Html::encode(json_encode($eventsDecoded, JSON_UNESCAPED_UNICODE)) ?>">
             </div>
         </div>
 
@@ -326,19 +358,70 @@ document.getElementById('org_type_select').addEventListener('change', function()
 if (document.getElementById('org_type_select').value === 'other') {
     document.getElementById('org_type_other').style.display = 'block';
 }
-// Валидация JSON для поля «Встречи»
+
+// === Встречи и мероприятия ===
 (function() {
-    var eventsField = document.querySelector('textarea[name="events"]');
-    if (eventsField) {
-        eventsField.addEventListener('blur', function() {
-            var val = this.value.trim();
-            if (val === '' || val === '[]') return;
-            try {
-                JSON.parse(val);
-                this.setCustomValidity('');
-            } catch (e) {
-                this.setCustomValidity('Неверный формат JSON. Пример: [{"date":"12.05.2024","title":"Событие","location":"Город"}]');
+    var container = document.getElementById('events-container');
+    var addBtn = document.getElementById('add-event-btn');
+    var hiddenInput = document.getElementById('events-hidden');
+
+    function createEventRow(date, title, location) {
+        var div = document.createElement('div');
+        div.className = 'event-row mb-3 p-3 border rounded-3 bg-light position-relative';
+        div.innerHTML =
+            '<button type="button" class="btn-close position-absolute top-0 end-0 m-2 event-remove-btn" aria-label="Удалить"></button>' +
+            '<div class="row g-2">' +
+                '<div class="col-md-3">' +
+                    '<label class="form-label small mb-1">Дата</label>' +
+                    '<input type="text" class="form-control event-date" placeholder="12.05.2024" value="' + (date || '') + '">' +
+                '</div>' +
+                '<div class="col-md-5">' +
+                    '<label class="form-label small mb-1">Название</label>' +
+                    '<input type="text" class="form-control event-title" placeholder="Конференция по образованию" value="' + (title || '') + '">' +
+                '</div>' +
+                '<div class="col-md-4">' +
+                    '<label class="form-label small mb-1">Место</label>' +
+                    '<input type="text" class="form-control event-location" placeholder="Париж, Франция" value="' + (location || '') + '">' +
+                '</div>' +
+            '</div>';
+        div.querySelector('.event-remove-btn').addEventListener('click', function() {
+            div.remove();
+            collectEvents();
+        });
+        return div;
+    }
+
+    function collectEvents() {
+        var rows = container.querySelectorAll('.event-row');
+        var events = [];
+        rows.forEach(function(row) {
+            var date = row.querySelector('.event-date').value.trim();
+            var title = row.querySelector('.event-title').value.trim();
+            var location = row.querySelector('.event-location').value.trim();
+            if (date || title) {
+                events.push({date: date, title: title, location: location});
             }
+        });
+        hiddenInput.value = JSON.stringify(events);
+    }
+
+    // Bind remove buttons on existing rows
+    container.querySelectorAll('.event-remove-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            btn.closest('.event-row').remove();
+            collectEvents();
+        });
+    });
+
+    addBtn.addEventListener('click', function() {
+        container.appendChild(createEventRow('', '', ''));
+    });
+
+    // Collect events before form submit
+    var form = container.closest('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            collectEvents();
         });
     }
 })();
