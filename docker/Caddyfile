@@ -1,0 +1,12 @@
+{
+    frankenphp
+}
+
+:80 {
+    log
+    root * /app/public
+    file_server {
+        pass_thru
+    }
+    php_server
+}
