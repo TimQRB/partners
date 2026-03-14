@@ -6,18 +6,18 @@
 
 ## Клонировал проект — что делать
 
-Команды по порядку (все из папки, где лежит проект — после клона это папка `landing`).
+Зайди в папку с проектом: если клонировал репозиторий — папка будет `landing`; если проект у тебя в подпапке (например в `landing_sku`), то папка проекта — `yii3`.
 
 | Шаг | Где выполнять | Команда |
 |-----|----------------|---------|
 | 1. Клонировать | Любая папка (например `Desktop`) | `git clone https://github.com/TimQRB/landing.git` |
-| 2. Зайти в проект | — | `cd landing` |
-| 3. Поставить зависимости PHP | Внутри `landing` | `composer install` |
-| 4. Запустить сайт (Docker) | Внутри `landing` | `docker compose -f docker/compose.yml -f docker/dev/compose.yml up -d --build` |
+| 2. Зайти в проект | — | `cd landing` (после клона) или `cd yii3` (если проект внутри родительской папки) |
+| 3. Поставить зависимости PHP | Внутри папки проекта | `composer install` |
+| 4. Запустить сайт (Docker) | Внутри папки проекта | `docker compose -f docker/compose.yml -f docker/dev/compose.yml up -d --build` |
 
 После этого открыть в браузере: **http://localhost**. Админка: http://localhost/admin/login (`admin` / `password`).
 
-Остановить: в папке `landing` выполнить  
+Остановить: в папке проекта выполнить  
 `docker compose -f docker/compose.yml -f docker/dev/compose.yml down`
 
 ---
@@ -25,11 +25,29 @@
 ## Запуск (если уже есть клон)
 
 ```bash
-cd landing
+cd yii3
+composer install
 docker compose -f docker/compose.yml -f docker/dev/compose.yml up -d --build
 ```
 
 Сайт: **http://localhost**.
+
+---
+
+## Как запушить изменения (в т.ч. README)
+
+Выполнять из папки проекта (у тебя это `yii3`):
+
+```bash
+cd yii3
+git add .
+git commit -m "описание изменений"
+git push origin main
+```
+
+Первый раз, если ещё не настроен remote:  
+`git remote add origin https://github.com/TimQRB/landing.git`  
+затем `git push -u origin main`.
 
 ---
 
