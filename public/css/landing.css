@@ -479,7 +479,43 @@ body.landing-layout::before {
 /* ============================================================
    8. Responsive
    ============================================================ */
-@media (max-width: 576px) {
+@media (max-width: 768px) {
+    /* Hero Section Mobile Adjustments */
+    .hero-section-modern {
+        background-position: 80% center; /* Показываем правую часть картинки со зданием */
+    }
+
+    .hero-content-modern {
+        min-height: 400px;
+        padding-bottom: 32px;
+        padding-top: 80px;
+    }
+
+    .hero-title-modern {
+        font-size: clamp(2rem, 8vw, 2.5rem);
+    }
+
+    /* Search Section Mobile Adjustments */
+    .search-section-modern form {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .search-group-modern {
+        max-width: 100% !important;
+        width: 100%;
+    }
+
+    .btn-dusty-blue {
+        width: 100%;
+        text-align: center;
+    }
+
+    .section-title-modern {
+        font-size: 1.5rem;
+    }
+
+    /* Card Detail Mobile Adjustments */
     .card-detail-hero-inner {
         flex-direction: column;
         align-items: flex-start;
