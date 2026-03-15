@@ -58,13 +58,11 @@ body.landing-layout {
 .hero-section-modern {
     position: relative;
     width: 100%;
-    min-height: 420px;
+    min-height: 480px;
     background-image: url('/uploads/ulk2.jpeg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    display: flex;
-    align-items: flex-end;
 }
 
 .hero-bg-img {
@@ -74,18 +72,24 @@ body.landing-layout {
 .hero-overlay-modern {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        to top,
-        rgba(0, 140, 170, 0.6) 0%,
-        rgba(0, 140, 170, 0.2) 40%,
-        transparent 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(0, 20, 60, 0.88) 0%,
+            rgba(0, 40, 90, 0.7) 35%,
+            rgba(0, 70, 120, 0.35) 60%,
+            rgba(0, 100, 150, 0.1) 80%,
+            transparent 100%);
 }
 
 .hero-content-modern {
     position: relative;
     z-index: 2;
-    padding-bottom: 2.5rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 480px;
+    padding-top: 100px;
+    padding-bottom: 0;
 }
 
 .hero-title-modern {
@@ -94,7 +98,6 @@ body.landing-layout {
     font-weight: 700;
     line-height: 1.15;
     margin-bottom: 0;
-    text-shadow: 1px 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* --- Search Section --- */

@@ -64,11 +64,8 @@ $areaOptions = [
                     <?php endif; ?>
                 </div>
                 <div class="flex-grow-1">
-                    <label class="form-label d-block small mb-1 text-white">Название организации / компания (RU) <span class="text-danger">*</span></label>
-                    <input type="text" name="org_name" class="form-control bg-white border-0 mb-2" value="<?= Html::encode($model['org_name'] ?? '') ?>" placeholder="Имя проекта (на русском)" required style="max-width: 100%;">
-                    
-                    <label class="form-label d-block small mb-1 text-white">Organization Name (EN)</label>
-                    <input type="text" name="org_name_en" class="form-control bg-white border-0" value="<?= Html::encode($model['org_name_en'] ?? '') ?>" placeholder="Project Name (English)" style="max-width: 100%;">
+                    <label class="form-label d-block small mb-1 text-white">Название организации / компания <span class="text-danger">*</span></label>
+                    <input type="text" name="org_name" class="form-control bg-white border-0" value="<?= Html::encode($model['org_name'] ?? '') ?>" placeholder="Имя проекта" required style="max-width: 100%;">
                 </div>
                 <div class="align-self-end">
                     <label class="form-label small mb-1 d-block text-white">Логотип <span class="opacity-75">*</span></label>
@@ -162,11 +159,8 @@ $areaOptions = [
             <div class="card-body">
                 <h3 class="admin-form-section-heading"><span>4. Краткое описание предложения <span class="text-danger">*</span></span></h3>
                 <div class="admin-form-field">
-                    <label class="form-label mb-1">На русском <span class="text-danger">*</span></label>
-                    <textarea name="description" class="form-control mb-3" rows="5" placeholder="Свободный текст на русском" required><?= Html::encode($model['description'] ?? '') ?></textarea>
-                    
-                    <label class="form-label mb-1">На английском (опционально)</label>
-                    <textarea name="description_en" class="form-control" rows="5" placeholder="English description"><?= Html::encode($model['description_en'] ?? '') ?></textarea>
+                    <label class="form-label">Краткое описание <span class="text-danger">*</span></label>
+                    <textarea name="description" class="form-control" rows="5" placeholder="Свободный текст" required><?= Html::encode($model['description'] ?? '') ?></textarea>
                 </div>
                 <div class="admin-form-field">
                     <label class="form-label">Изображения к описанию</label>
@@ -250,15 +244,8 @@ $areaOptions = [
                 <?php
                 $subtasksDecoded = $model ? Partnership::decodeJson($model['subtasks'] ?? null) : [];
                 $subtasksText = is_array($subtasksDecoded) ? implode("\n", array_map(fn($v) => is_string($v) ? $v : (string) $v, $subtasksDecoded)) : '';
-                
-                $subtasksEnDecoded = $model ? Partnership::decodeJson($model['subtasks_en'] ?? null) : [];
-                $subtasksEnText = is_array($subtasksEnDecoded) ? implode("\n", array_map(fn($v) => is_string($v) ? $v : (string) $v, $subtasksEnDecoded)) : '';
                 ?>
-                <label class="form-label mb-1">На русском</label>
-                <textarea name="subtasks" class="form-control mb-3" rows="4" placeholder="Подзадача 1&#10;Подзадача 2"><?= Html::encode($subtasksText) ?></textarea>
-                
-                <label class="form-label mb-1">На английском (опционально)</label>
-                <textarea name="subtasks_en" class="form-control" rows="4" placeholder="Subtask 1&#10;Subtask 2 (English)"><?= Html::encode($subtasksEnText) ?></textarea>
+                <textarea name="subtasks" class="form-control" rows="4" placeholder="Подзадача 1&#10;Подзадача 2"><?= Html::encode($subtasksText) ?></textarea>
             </div>
         </div>
 
@@ -269,15 +256,8 @@ $areaOptions = [
                 <?php
                 $goalsDecoded = $model ? Partnership::decodeJson($model['goals'] ?? null) : [];
                 $goalsText = is_array($goalsDecoded) ? implode("\n", array_map(fn($v) => is_string($v) ? $v : (string) $v, $goalsDecoded)) : '';
-                
-                $goalsEnDecoded = $model ? Partnership::decodeJson($model['goals_en'] ?? null) : [];
-                $goalsEnText = is_array($goalsEnDecoded) ? implode("\n", array_map(fn($v) => is_string($v) ? $v : (string) $v, $goalsEnDecoded)) : '';
                 ?>
-                <label class="form-label mb-1">На русском</label>
-                <textarea name="goals" class="form-control mb-3" rows="4" placeholder="Цель 1&#10;Цель 2"><?= Html::encode($goalsText) ?></textarea>
-                
-                <label class="form-label mb-1">На английском (опционально)</label>
-                <textarea name="goals_en" class="form-control" rows="4" placeholder="Goal 1&#10;Goal 2 (English)"><?= Html::encode($goalsEnText) ?></textarea>
+                <textarea name="goals" class="form-control" rows="4" placeholder="Цель 1&#10;Цель 2"><?= Html::encode($goalsText) ?></textarea>
             </div>
         </div>
 

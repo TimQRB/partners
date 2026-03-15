@@ -11,18 +11,18 @@ use Yiisoft\Router\UrlGeneratorInterface;
 
 // --- Header ---
 $header = [
-    'title' => \App\Service\Lang::field($card, 'org_name'),
-    'description' => \App\Service\Lang::field($card, 'description'),
+    'title' => (string) ($card['org_name'] ?? ''),
+    'description' => (string) ($card['description'] ?? ''),
     'image' => $card['file_path'] ?? null,
 ];
 
 // --- Тип организации ---
 $orgTypes = [
-    'company' => \App\Service\Lang::t('org_type_company'),
-    'university' => \App\Service\Lang::t('org_type_university'),
-    'research' => \App\Service\Lang::t('org_type_research'),
-    'government' => \App\Service\Lang::t('org_type_government'),
-    'ngo' => \App\Service\Lang::t('org_type_ngo'),
+    'company' => 'Компания',
+    'university' => 'Университет',
+    'research' => 'Исследовательский центр',
+    'government' => 'Государственная организация',
+    'ngo' => 'НКО',
 ];
 $orgTypeKey = (string) ($card['org_type'] ?? '');
 $orgTypeLabel = $orgTypes[$orgTypeKey] ?? ($orgTypeKey !== '' ? $orgTypeKey : '');
@@ -33,30 +33,30 @@ $activityAreas = Partnership::decodeJson($card['activity_areas'] ?? null);
 $formatItems = Partnership::decodeJson($card['interaction_format'] ?? null);
 
 $coopOptions = [
-    'research' => \App\Service\Lang::t('coop_research'),
-    'education' => \App\Service\Lang::t('coop_education'),
-    'internships' => \App\Service\Lang::t('coop_internships'),
-    'joint_projects' => \App\Service\Lang::t('coop_joint_projects'),
-    'commercial' => \App\Service\Lang::t('coop_commercial'),
-    'grants' => \App\Service\Lang::t('coop_grants'),
-    'exchange' => \App\Service\Lang::t('coop_exchange'),
+    'research' => 'Научные исследования',
+    'education' => 'Образовательные программы',
+    'internships' => 'Стажировки/практика студентов',
+    'joint_projects' => 'Совместные проекты',
+    'commercial' => 'Коммерческие проекты',
+    'grants' => 'Гранты/финансирование',
+    'exchange' => 'Обмен студентами или преподавателями',
 ];
 $areaOptions = [
-    'it' => \App\Service\Lang::t('area_it'),
-    'manufacturing' => \App\Service\Lang::t('area_manufacturing'),
-    'energy' => \App\Service\Lang::t('area_energy'),
-    'medicine' => \App\Service\Lang::t('area_medicine'),
-    'education' => \App\Service\Lang::t('area_education'),
-    'agriculture' => \App\Service\Lang::t('area_agriculture'),
-    'finance' => \App\Service\Lang::t('area_finance'),
+    'it' => 'IT/технологии',
+    'manufacturing' => 'Производство',
+    'energy' => 'Энергетика',
+    'medicine' => 'Медицина',
+    'education' => 'Образование',
+    'agriculture' => 'Сельское хозяйство',
+    'finance' => 'Финансы',
 ];
 $formatOptions = [
-    'joint_research' => \App\Service\Lang::t('coop_research'),
-    'contract_research' => \App\Service\Lang::t('coop_research'),
-    'staff_training' => \App\Service\Lang::t('format_staff_training'),
-    'joint_lab' => \App\Service\Lang::t('coop_research'),
-    'industrial_projects' => \App\Service\Lang::t('format_industrial_projects'),
-    'student_internships' => \App\Service\Lang::t('format_student_internships'),
+    'joint_research' => 'Научные исследования',
+    'contract_research' => 'Научные исследования',
+    'staff_training' => 'Обучение персонала',
+    'joint_lab' => 'Научные исследования',
+    'industrial_projects' => 'Промышленные проекты',
+    'student_internships' => 'Практика студентов',
 ];
 
 $collaborationLabels = [];
@@ -89,13 +89,11 @@ foreach ($formatItems as $item) {
 }
 
 // --- Подзадачи ---
-$subtasksStr = \App\Service\Lang::get() === 'en' && !empty($card['subtasks_en']) && $card['subtasks_en'] !== '[]' ? $card['subtasks_en'] : ($card['subtasks'] ?? null);
-$subtasks = Partnership::decodeJson($subtasksStr);
+$subtasks = Partnership::decodeJson($card['subtasks'] ?? null);
 $subtasks = is_array($subtasks) ? array_values(array_filter($subtasks, fn($v) => $v !== '' && $v !== null)) : [];
 
 // --- Цели ---
-$goalsStr = \App\Service\Lang::get() === 'en' && !empty($card['goals_en']) && $card['goals_en'] !== '[]' ? $card['goals_en'] : ($card['goals'] ?? null);
-$goals = Partnership::decodeJson($goalsStr);
+$goals = Partnership::decodeJson($card['goals'] ?? null);
 $goals = is_array($goals) ? array_values(array_filter($goals, fn($v) => $v !== '' && $v !== null)) : [];
 
 // --- Встречи ---
@@ -125,7 +123,7 @@ if (!empty($header['image'])) {
     <div class="project-detail-container">
 
         <!-- Ссылка назад -->
-        <a href="/" class="project-detail-back"><?= \App\Service\Lang::t('back_all_projects') ?></a>
+        <a href="/" class="project-detail-back">← Все проекты</a>
 
         <!-- ========== Главная карточка проекта ========== -->
         <div class="project-card-main">
@@ -154,7 +152,7 @@ if (!empty($header['image'])) {
             </div>
             <div class="project-card-bottom">
                 <p class="project-card-description <?= $header['description'] === '' ? 'is-empty' : '' ?>">
-                    <?= $header['description'] !== '' ? nl2br(Html::encode($header['description'])) : \App\Service\Lang::t('no_description') ?>
+                    <?= $header['description'] !== '' ? nl2br(Html::encode($header['description'])) : 'Нет описания.' ?>
                 </p>
 
                 <?php if (!empty($descImages)): ?>
@@ -171,7 +169,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($card['website'])): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_website') ?></h2>
+                    <h2>Сайт организации</h2>
                 </div>
                 <a href="<?= Html::encode($card['website']) ?>" target="_blank" rel="noopener" class="project-website-link">
                     <?= Html::encode($card['website']) ?>
@@ -183,7 +181,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($collaborationLabels)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_directions') ?></h2>
+                    <h2>Направления сотрудничества</h2>
                 </div>
                 <div class="directions-grid">
                     <?php foreach ($collaborationLabels as $label): ?>
@@ -200,7 +198,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($subtasks)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_subtasks') ?></h2>
+                    <h2>Подзадачи проекта</h2>
                 </div>
                 <div class="subtasks-list">
                     <?php foreach ($subtasks as $i => $text): ?>
@@ -217,7 +215,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($goals)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_goals') ?></h2>
+                    <h2>Цели проекта</h2>
                 </div>
                 <div class="goals-list">
                     <?php foreach ($goals as $goal): ?>
@@ -234,7 +232,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($events)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_events') ?></h2>
+                    <h2>Встречи и мероприятия</h2>
                 </div>
                 <div class="timeline-list">
                     <?php foreach ($events as $event): ?>
@@ -264,7 +262,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($materials)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_materials') ?></h2>
+                    <h2>Дополнительные материалы</h2>
                 </div>
                 <div class="materials-list">
                     <?php foreach ($materials as $path): ?>
@@ -289,7 +287,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($card['contact_name']) || !empty($card['contact_email']) || !empty($card['contact_phone'])): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2><?= \App\Service\Lang::t('section_contact') ?></h2>
+                    <h2>Контактное лицо</h2>
                 </div>
                 <div class="contact-info">
                     <?php if (!empty($card['contact_name'])): ?>
@@ -312,7 +310,7 @@ if (!empty($header['image'])) {
                             </a>
                         <?php endif; ?>
                         <?php if (!empty($card['contact_method'])): ?>
-                            <p class="contact-method"><?= \App\Service\Lang::t('contact_preferred') ?>: <?= Html::encode($card['contact_method']) ?></p>
+                            <p class="contact-method">Предпочитаемый способ связи: <?= Html::encode($card['contact_method']) ?></p>
                         <?php endif; ?>
                     </div>
                 </div>

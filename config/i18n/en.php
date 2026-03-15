@@ -7,6 +7,7 @@ return [
     // Hero
     'hero_title_line1' => 'International',
     'hero_title_line2' => 'Partnerships & Projects',
+    'hero_subtitle' => 'Building bridges and promoting innovation through global cooperation.',
 
     // Search
     'search_placeholder' => 'Search by name...',

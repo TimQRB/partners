@@ -179,13 +179,9 @@ final class AdminController
         }
         $subtasksRaw = trim((string) ($body['subtasks'] ?? ''));
         $subtasks = $subtasksRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $subtasksRaw)))) : [];
-        $subtasksEnRaw = trim((string) ($body['subtasks_en'] ?? ''));
-        $subtasksEn = $subtasksEnRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $subtasksEnRaw)))) : [];
         
         $goalsRaw = trim((string) ($body['goals'] ?? ''));
         $goals = $goalsRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $goalsRaw)))) : [];
-        $goalsEnRaw = trim((string) ($body['goals_en'] ?? ''));
-        $goalsEn = $goalsEnRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $goalsEnRaw)))) : [];
 
         $eventsRaw = trim((string) ($body['events'] ?? ''));
         $events = [];
@@ -196,7 +192,6 @@ final class AdminController
 
         return [
             'org_name' => trim((string) ($body['org_name'] ?? '')),
-            'org_name_en' => trim((string) ($body['org_name_en'] ?? '')),
             'org_type' => $orgType,
             'country' => trim((string) ($body['country'] ?? '')),
             'city' => trim((string) ($body['city'] ?? '')),
@@ -208,13 +203,10 @@ final class AdminController
             'contact_method' => trim((string) ($body['contact_method'] ?? '')),
             'cooperation_directions' => Partnership::encodeJson($coop),
             'description' => trim((string) ($body['description'] ?? '')),
-            'description_en' => trim((string) ($body['description_en'] ?? '')),
             'activity_areas' => Partnership::encodeJson($areas),
             'interaction_format' => Partnership::encodeJson($format),
             'subtasks' => Partnership::encodeJson($subtasks),
-            'subtasks_en' => Partnership::encodeJson($subtasksEn),
             'goals' => Partnership::encodeJson($goals),
-            'goals_en' => Partnership::encodeJson($goalsEn),
             'events' => Partnership::encodeJson($events),
             'data_consent' => $body['data_consent'] ?? '',
         ];

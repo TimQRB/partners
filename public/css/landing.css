@@ -1,0 +1,496 @@
+/* ============================================================
+   Landing CSS — Kozybayev University
+   Единый файл стилей для публичной части лендинга
+   ============================================================ */
+
+/* --- CSS Variables (дополнение к design-system.css) --- */
+:root {
+    --dusty-blue: #00B0C7;
+    --teal-accent: #00B0C7;
+    --light-gray: #889299;
+}
+
+/* ============================================================
+   1. Base / Layout
+   ============================================================ */
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body>main {
+    flex: 1 0 auto;
+}
+
+body.landing-layout {
+    font-family: 'Open Sans', 'Roboto', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    background-color: #ffffff;
+    color: #333;
+    padding-top: 0;
+}
+
+body.landing-layout::before {
+    display: none;
+}
+
+.landing-layout main {
+    padding-top: 0;
+}
+
+.container {
+    max-width: 992px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ============================================================
+   2. Navbar
+   ============================================================ */
+.site-navbar {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.site-navbar .navbar-brand {
+    color: #fff;
+}
+
+.site-navbar .navbar-brand-icon,
+.site-navbar .navbar-brand-logo {
+    display: block;
+    height: 60px !important;
+    width: auto;
+    object-fit: contain;
+}
+
+.site-navbar .navbar-brand-text {
+    font-size: 0.95rem;
+    font-weight: 670;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.header-logo-text {
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+/* --- Language Switcher (placeholder) --- */
+.lang-switch {
+    display: flex;
+    gap: 8px;
+}
+
+.lang-btn {
+    display: inline-block;
+    padding: 6px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    border: 1px solid #fff;
+    border-radius: 4px;
+    transition: background 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    background: transparent;
+    color: #fff;
+}
+
+.lang-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.lang-btn.active {
+    background: rgba(255, 255, 255, 0.35);
+    color: #fff;
+}
+
+/* ============================================================
+   3. Hero Section
+   ============================================================ */
+.hero-section-modern {
+    position: relative;
+    width: 100%;
+    min-height: 480px;
+    background-image: url('/uploads/ulk2.jpeg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.hero-overlay-modern {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+            rgba(0, 20, 60, 0.88) 0%,
+            rgba(0, 40, 90, 0.7) 35%,
+            rgba(0, 70, 120, 0.35) 60%,
+            rgba(0, 100, 150, 0.1) 80%,
+            transparent 100%);
+}
+
+.hero-content-modern {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    min-height: 480px;
+    padding-top: 100px;
+    padding-bottom: 48px;
+}
+
+.hero-title-modern {
+    color: #ffffff;
+    font-size: clamp(2.2em, 3.5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+/* ============================================================
+   4. Search Section
+   ============================================================ */
+.search-section-modern {
+    background-color: #ffffff;
+}
+
+.search-group-modern {
+    border-radius: 50px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.search-group-modern input::placeholder {
+    color: #a0a0a0;
+}
+
+.btn-dusty-blue {
+    background-color: var(--dusty-blue);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-dusty-blue:hover {
+    background-color: #008e9e;
+    color: #ffffff;
+}
+
+.section-title-modern {
+    color: var(--teal-accent);
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: 1px;
+}
+
+/* ============================================================
+   5. Partner Cards
+   ============================================================ */
+.card-partner-modern {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e9ecef !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-partner-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+.bg-dusty-blue {
+    background-color: var(--dusty-blue);
+}
+
+.card-top-dusty {
+    height: 80px;
+}
+
+.partner-logo-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.name-clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 1.05rem;
+}
+
+.card-partner-modern .card-body {
+    min-height: 295px;
+}
+
+.description-clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    text-align: left !important;
+}
+
+.btn-more {
+    color: var(--dusty-blue) !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: opacity 0.2s ease;
+}
+
+.btn-more:hover {
+    opacity: 0.7;
+}
+
+/* ============================================================
+   6. Card Detail Page (public partner view)
+   ============================================================ */
+.card-detail-page {
+    max-width: 720px;
+}
+
+.card-detail-back {
+    display: inline-block;
+    color: var(--teal-accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+    transition: color 0.2s;
+}
+
+.card-detail-back:hover {
+    color: #009aad;
+}
+
+.card-detail-hero {
+    background: var(--teal-accent);
+    border-radius: 12px;
+    padding: 1.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(5, 164, 186, 0.25);
+}
+
+.card-detail-hero-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.card-detail-hero-logo {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-detail-hero-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.card-detail-hero-text {
+    min-width: 0;
+}
+
+.card-detail-hero-title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.card-detail-hero-meta {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4;
+}
+
+.card-detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.card-detail-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card-detail-section-title {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--teal-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid var(--teal-accent);
+    display: inline-block;
+}
+
+.card-detail-section-content {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+.card-detail-description {
+    white-space: pre-wrap;
+}
+
+.card-detail-link {
+    color: var(--teal-accent);
+    font-weight: 500;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.card-detail-link:hover {
+    text-decoration: underline;
+}
+
+.card-detail-muted {
+    color: #6c757d;
+    margin: 0;
+}
+
+.card-detail-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.card-detail-list li {
+    position: relative;
+    padding-left: 1.1rem;
+    margin-bottom: 0.4rem;
+}
+
+.card-detail-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--teal-accent);
+}
+
+.card-detail-files {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.card-detail-files li {
+    margin-bottom: 0.35rem;
+}
+
+.card-detail-file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-detail-file-icon {
+    font-size: 1.25rem;
+    color: var(--teal-accent);
+    flex-shrink: 0;
+}
+
+.card-detail-file-item .card-detail-link {
+    flex: 1;
+    min-width: 0;
+    word-break: break-all;
+}
+
+.card-detail-contact .card-detail-contact-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.card-detail-description-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.card-detail-desc-img {
+    max-width: 100%;
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* ============================================================
+   7. Footer
+   ============================================================ */
+.landing-footer-modern {
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+}
+
+.footer-copy {
+    color: var(--light-gray);
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   8. Responsive
+   ============================================================ */
+@media (max-width: 576px) {
+    .card-detail-hero-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-detail-hero-logo {
+        width: 56px;
+        height: 56px;
+    }
+
+    .card-detail-hero-title {
+        font-size: 1.25rem;
+    }
+}
