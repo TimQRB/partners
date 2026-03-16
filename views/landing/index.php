@@ -33,28 +33,28 @@ use Yiisoft\Router\UrlGeneratorInterface;
                 <div class="col-md-6 col-lg-4">
                     <div class="card card-partner-modern h-100 border-0 shadow-sm">
                         <div class="card-top-dusty bg-dusty-blue position-relative">
-                            <div class="d-flex align-items-center h-100 px-4 py-3">
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100 px-4 py-4 gap-3">
                                 <?php if ($imgUrl): ?>
-                                    <div class="partner-logo-box bg-white me-3 d-flex align-items-center justify-content-center flex-shrink-0 overflow-hidden">
-                                        <img src="<?= Html::encode($imgUrl) ?>" alt="Логотип партнера" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%;">
+                                    <div class="partner-logo-box bg-white d-flex align-items-center justify-content-center flex-shrink-0 overflow-hidden">
+                                        <img src="<?= Html::encode($imgUrl) ?>" alt="Логотип партнера" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%; border-radius: 6px;">
                                     </div>
                                 <?php else: ?>
-                                    <div class="partner-logo-box bg-white me-3 d-flex align-items-center justify-content-center flex-shrink-0">
-                                        <i class="bi bi-building text-dusty-blue fs-4"></i>
+                                    <div class="partner-logo-box d-flex align-items-center justify-content-center flex-shrink-0">
+                                        <i class="bi bi-building text-white" style="font-size: 3rem; opacity: 0.8;"></i>
                                     </div>
                                 <?php endif; ?>
-                                <h3 class="partner-name text-white m-0 fw-bold lh-sm name-clamped"><?= Html::encode($card['org_name'] ?? 'Name') ?></h3>
+                                <h3 class="partner-name text-white m-0 fw-bold lh-sm name-clamped text-center"><?= Html::encode($card['org_name'] ?? 'Название') ?></h3>
                             </div>
                         </div>
                         <div class="card-body bg-white p-4 d-flex flex-column">
-                            <p class="card-text text-muted mb-4 description-clamped flex-grow-1 text-center">
+                            <p class="card-text text-black-50 mb-4 description-clamped flex-grow-1">
                                 <?php $desc = trim((string) ($card['description'] ?? '')); ?>
                                 <?= empty($desc) ? 'Описание отсутствует...' : Html::encode($desc) ?>
                             </p>
                             <hr class="text-black-50 opacity-25 m-0 mb-3">
                             <div class="d-flex justify-content-between align-items-center mt-auto">
-                                <a href="<?= $urlGenerator->generate('card-view', ['id' => $card['id']]) ?>" class="btn-more text-decoration-none text-muted">Подробнее &rarr;</a>
-                                <span class="text-muted small">с <?= date('Y', strtotime($card['created_at'] ?? 'now')) ?></span>
+                                <a href="<?= $urlGenerator->generate('card-view', ['id' => $card['id']]) ?>" class="btn-more fw-bold text-black-50 text-decoration-none">Подробнее &rarr;</a>
+                                <span class="fw-bold text-black-50 small">с <?= date('Y', strtotime($card['created_at'] ?? 'now')) ?></span>
                             </div>
                         </div>
                     </div>
