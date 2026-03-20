@@ -14,6 +14,14 @@ use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
 $root = dirname(__DIR__);
 
+// Force dev environment before bootstrapping so Config uses it
+putenv('APP_ENV=dev');
+$_ENV['APP_ENV'] = 'dev';
+putenv('APP_DEBUG=1');
+$_ENV['APP_DEBUG'] = '1';
+putenv('APP_C3=false');
+$_ENV['APP_C3'] = 'false';
+
 // Handle language switcher via cookie
 if (isset($_GET['lang']) && in_array($_GET['lang'], ['ru', 'en'], true)) {
     setcookie('app_lang', $_GET['lang'], time() + 86400 * 30, '/');
@@ -27,14 +35,6 @@ require_once $root . '/src/autoload.php';
 // Boot translations
 require_once $root . '/src/Service/Lang.php';
 \App\Service\Lang::init($currentLang);
-
-putenv('APP_ENV=dev');
-$_ENV['APP_ENV'] = 'dev';
-putenv('APP_DEBUG=1');
-$_ENV['APP_DEBUG'] = '1';
-putenv('APP_C3=false');
-$_ENV['APP_C3'] = 'false';
-require_once $root . '/src/autoload.php';
 
 if (Environment::appC3()) {
     $c3 = $root . '/c3.php';
