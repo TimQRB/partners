@@ -27,7 +27,7 @@ if (isset($_GET['lang']) && in_array($_GET['lang'], ['ru', 'en'], true)) {
     setcookie('app_lang', $_GET['lang'], time() + 86400 * 30, '/');
     $_COOKIE['app_lang'] = $_GET['lang']; // populate immediately
 }
-$currentLang = $_COOKIE['app_lang'] ?? 'ru';
+$currentLang = $_COOKIE['app_lang'] ?? 'en';
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 

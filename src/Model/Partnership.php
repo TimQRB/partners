@@ -18,7 +18,11 @@ final class Partnership
             ->where(['published' => 1])
             ->orderBy(['created_at' => SORT_DESC]);
         if ($search !== null && $search !== '') {
-            $q->andWhere(['like', 'org_name', $search]);
+            $q->andWhere([
+                'or',
+                ['like', 'org_name', $search],
+                ['like', 'org_name_en', $search],
+            ]);
         }
         $rows = $q->all();
         return is_array($rows) ? $rows : [];

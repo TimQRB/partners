@@ -12,40 +12,6 @@
     padding: 0 0 3rem;
 }
 
-/* Navbar — бирюзовый хедер */
-.project-detail-page .site-navbar {
-    background-color: var(--ku-primary, #00B0C7) !important;
-    position: relative !important;
-}
-
-.project-detail-page .navbar-brand-logo {
-    filter: none;
-    opacity: 1;
-}
-
-.project-detail-page .lang-btn-modern {
-    border-color: rgba(255,255,255,0.7);
-    border-radius: 6px;
-    padding: 4px 14px;
-    font-size: 13px;
-}
-
-.project-detail-page .lang-btn-modern.active {
-    background-color: rgba(255,255,255,0.2);
-    color: #fff;
-    border-color: #fff;
-}
-
-.project-detail-page .lang-btn-modern:not(.active) {
-    color: rgba(255,255,255,0.8);
-    background-color: transparent;
-}
-
-.project-detail-page .lang-btn-modern:not(.active):hover {
-    background-color: rgba(255,255,255,0.15);
-    color: #fff;
-}
-
 .project-detail-page .landing-footer-modern {
     background-color: #ffffff;
 }
@@ -162,23 +128,66 @@
 .project-desc-images {
     margin-top: 20px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.project-desc-img-wrap {
+    width: 100%;
+    height: 260px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e6e6e6;
+    background: #f6f7f8;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 .project-desc-img {
     width: 100%;
-    border-radius: 12px;
+    height: 100%;
     object-fit: cover;
-    max-height: 300px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid #eee;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .project-desc-img-wrap {
+        height: 220px;
+    }
 }
 
 .project-desc-img:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: none;
+    box-shadow: none;
+}
+
+.active-project-item {
+    padding: 16px 18px;
+    border: 1px solid #e7eaee;
+    border-radius: 12px;
+    background: #fbfcfd;
+}
+
+.active-project-title {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #27313f;
+}
+
+.active-project-description {
+    color: #3b4656;
+    line-height: 1.65;
+}
+
+.project-inline-img {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #dfe3e8;
+    margin: 10px 0;
 }
 
 /* ============================

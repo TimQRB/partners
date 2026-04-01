@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Service\Lang;
 use Yiisoft\Html\Html;
 
 /** @var \Yiisoft\View\WebView $this */
@@ -9,16 +10,26 @@ use Yiisoft\Html\Html;
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 $isAdmin = (strpos($requestUri, '/admin') === 0);
 $isProjectDetail = (preg_match('#^/card/\d+#', $requestUri) === 1);
+$path = parse_url($requestUri, PHP_URL_PATH) ?: '/';
+$isHome = $path === '/';
+/** Публичные страницы не главная: тот же навбар, что на главной, нужна подложка и отступ у main */
+$needsNavbarUnderlay = !$isAdmin && !$isHome;
 $bodyClass = $isAdmin ? 'admin-layout' : ($isProjectDetail ? 'landing-layout project-detail-page' : 'landing-layout');
+$lang = Lang::get();
+parse_str((string) parse_url($requestUri, PHP_URL_QUERY), $langQuery);
+$langQueryRu = array_merge($langQuery, ['lang' => 'ru']);
+$langQueryEn = array_merge($langQuery, ['lang' => 'en']);
+$urlLangRu = $path . '?' . http_build_query($langQueryRu);
+$urlLangEn = $path . '?' . http_build_query($langQueryEn);
 $this->beginPage();
 ?>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="<?= Html::encode($lang) ?>">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= Html::encode($this->getTitle() ?? 'Международные партнёрства и проекты') ?></title>
+    <title><?= Html::encode($this->getTitle() ?? Lang::t('site_title')) ?></title>
     <link
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
         rel="stylesheet">
@@ -35,11 +46,11 @@ $this->beginPage();
 <body class="<?= Html::encode($bodyClass) ?>">
     <?php $this->beginBody() ?>
 
+    <?php if ($needsNavbarUnderlay): ?>
+        <div class="landing-navbar-underlay" aria-hidden="true"></div>
+    <?php endif; ?>
     <?php
-    $navbarExtra = '';
-    if (!$isAdmin && !$isProjectDetail) {
-        $navbarExtra = 'position-absolute w-100 z-3';
-    }
+    $navbarExtra = $isAdmin ? '' : 'position-absolute w-100 z-3';
     ?>
     <header class="site-navbar <?= $navbarExtra ?>">
         <div class="container d-flex justify-content-between align-items-center py-4">
@@ -47,18 +58,20 @@ $this->beginPage();
                 <img src="/uploads/logo_white.png" alt="KOZYBAYEV UNIVERSITY" class="navbar-brand-logo" height="70"
                     onerror="this.style.display='none'">
             </a>
-            <div class="lang-switch">
-                <a href="?lang=ru" class="lang-btn active">RU</a>
-                <a href="?lang=en" class="lang-btn">EN</a>
-            </div>
+            <?php if ($isHome): ?>
+                <div class="lang-switch">
+                    <a href="<?= Html::encode($urlLangRu) ?>" class="lang-btn<?= $lang === 'ru' ? ' active' : '' ?>">RU</a>
+                    <a href="<?= Html::encode($urlLangEn) ?>" class="lang-btn<?= $lang === 'en' ? ' active' : '' ?>">EN</a>
+                </div>
+            <?php endif; ?>
         </div>
     </header>
-    <main>
+    <main<?= $needsNavbarUnderlay ? ' class="landing-main--navbar-offset"' : '' ?>>
         <?= $content ?>
     </main>
     <footer class="landing-footer-modern">
         <div class="container text-center py-4">
-            <span class="footer-copy">© 2026 Kozybayev University</span>
+            <span class="footer-copy"><?= Html::encode(Lang::t('footer_copy')) ?></span>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

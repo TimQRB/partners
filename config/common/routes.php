@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Controller\Api\PartnershipApiController;
 use App\Controller\LandingController;
 use App\Controller\LogoController;
 use App\Controller\ServeController;
 use App\Controller\Admin\AdminController;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\CorsMiddleware;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 
@@ -16,9 +18,17 @@ return [
         Route::get('/card/{id:\d+}')->action([LandingController::class, 'view'])->name('card-view'),
         Route::get('/logo/{name}')->action([LogoController::class, 'file'])->name('logo'),
         Route::get('/serve/partnership')->action([ServeController::class, 'partnership'])->name('serve/partnership'),
+        Route::get('/partnerships/create')->action([AdminController::class, 'partnershipCreate'])->name('public/partnerships/create'),
+        Route::post('/partnerships/create')->action([AdminController::class, 'partnershipCreatePost'])->name('public/partnerships/create-post'),
         Route::get('/admin/login')->action([AdminController::class, 'login'])->name('admin/login'),
         Route::post('/admin/login')->action([AdminController::class, 'loginPost'])->name('admin/login-post'),
         Route::get('/admin/logout')->action([AdminController::class, 'logout'])->name('admin/logout'),
+    ),
+    Group::create('/api')->middleware(CorsMiddleware::class)->routes(
+        Route::get('/partnerships')->action([PartnershipApiController::class, 'list'])->name('api/partnerships'),
+        Route::get('/partnerships/{id:\d+}')->action([PartnershipApiController::class, 'view'])->name('api/partnerships/view'),
+        Route::options('/partnerships')->action([PartnershipApiController::class, 'preflight']),
+        Route::options('/partnerships/{id:\d+}')->action([PartnershipApiController::class, 'preflight']),
     ),
     Group::create('/admin')->middleware(AuthMiddleware::class)->routes(
         Route::get('/dashboard')->action([AdminController::class, 'dashboard'])->name('admin/dashboard'),
@@ -27,6 +37,7 @@ return [
         Route::post('/partnerships/create')->action([AdminController::class, 'partnershipCreatePost'])->name('admin/partnerships/create-post'),
         Route::get('/partnerships/{id:\d+}/edit')->action([AdminController::class, 'partnershipEdit'])->name('admin/partnerships/edit'),
         Route::post('/partnerships/{id:\d+}/edit')->action([AdminController::class, 'partnershipEditPost'])->name('admin/partnerships/edit-post'),
+        Route::post('/partnerships/{id:\d+}/approve')->action([AdminController::class, 'partnershipApprove'])->name('admin/partnerships/approve'),
         Route::post('/partnerships/{id:\d+}/delete')->action([AdminController::class, 'partnershipDelete'])->name('admin/partnerships/delete'),
     ),
 ];

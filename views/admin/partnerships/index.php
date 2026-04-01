@@ -24,11 +24,13 @@ $this->setParameter('pageTitle', 'Блоки');
                     <th>Название</th>
                     <th>Фото</th>
                     <th>Дата</th>
+                    <th>Статус</th>
                     <th class="admin-blocks-actions-col"></th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($list as $item): ?>
+                    <?php $isPublished = !empty($item['published']); ?>
                     <tr>
                         <td class="admin-blocks-name"><?= Html::encode($item['org_name'] ?? '—') ?></td>
                         <td>
@@ -43,8 +45,21 @@ $this->setParameter('pageTitle', 'Блоки');
                         </td>
                         <td class="admin-blocks-date"><?= Html::encode($item['created_at'] ?? '') ?></td>
                         <td>
+                            <span class="badge <?= $isPublished ? 'text-bg-success' : 'text-bg-warning' ?>">
+                                <?= $isPublished ? 'Опубликовано' : 'На модерации' ?>
+                            </span>
+                        </td>
+                        <td>
                             <div class="admin-blocks-btns">
-                                <a href="<?= $urlGenerator->generate('card-view', ['id' => $item['id']]) ?>" class="btn btn-sm btn-admin-view">Просмотр</a>
+                                <?php if ($isPublished): ?>
+                                    <a href="<?= $urlGenerator->generate('card-view', ['id' => $item['id']]) ?>" class="btn btn-sm btn-admin-view">Просмотр</a>
+                                <?php else: ?>
+                                    <span class="btn btn-sm btn-secondary disabled">Не опубликовано</span>
+                                    <form method="post" action="<?= $urlGenerator->generate('admin/partnerships/approve', ['id' => $item['id']]) ?>" class="d-inline">
+                                        <?php $csrf = $this->getParameter('csrf'); if ($csrf): ?><input type="hidden" name="<?= Html::encode($csrf->getParameterName()) ?>" value="<?= Html::encode($csrf->getToken()) ?>"><?php endif; ?>
+                                        <button type="submit" class="btn btn-sm btn-success">Одобрить</button>
+                                    </form>
+                                <?php endif; ?>
                                 <a href="<?= $urlGenerator->generate('admin/partnerships/edit', ['id' => $item['id']]) ?>" class="btn btn-sm btn-teal">Изменить</a>
                                 <form method="post" action="<?= $urlGenerator->generate('admin/partnerships/delete', ['id' => $item['id']]) ?>" class="d-inline" onsubmit="return confirm('Удалить?');">
                                     <?php $csrf = $this->getParameter('csrf'); if ($csrf): ?><input type="hidden" name="<?= Html::encode($csrf->getParameterName()) ?>" value="<?= Html::encode($csrf->getToken()) ?>"><?php endif; ?>

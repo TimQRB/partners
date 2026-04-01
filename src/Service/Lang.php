@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Model\Partnership;
+
 /**
  * Simple i18n helper.
  * Usage:  Lang::init('en');  then  Lang::t('hero_title')
@@ -47,13 +49,24 @@ final class Lang
      */
     public static function field(array $row, string $field): string
     {
-        if (self::$lang !== 'ru') {
-            $enKey = $field . '_en';
-            $val = trim((string) ($row[$enKey] ?? ''));
-            if ($val !== '') {
-                return $val;
-            }
+        if (self::$lang === 'en') {
+            return (string) ($row[$field . '_en'] ?? '');
         }
+
         return (string) ($row[$field] ?? '');
+    }
+
+    /**
+     * JSON-массив из поля или из поля *_en для текущего языка (например subtasks / goals).
+     *
+     * @return list<mixed>
+     */
+    public static function jsonField(array $row, string $field): array
+    {
+        if (self::$lang === 'en') {
+            return Partnership::decodeJson(isset($row[$field . '_en']) ? (string) $row[$field . '_en'] : null);
+        }
+
+        return Partnership::decodeJson(isset($row[$field]) ? (string) $row[$field] : null);
     }
 }

@@ -16,6 +16,11 @@ $dbName = getenv('DB_NAME') ?: '';
 $dbUser = getenv('DB_USER') ?: '';
 $dbPassword = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
 
+$publicUrl = getenv('APP_PUBLIC_URL') ?: '';
+if ($publicUrl === '' && isset($_ENV['APP_PUBLIC_URL'])) {
+    $publicUrl = (string) $_ENV['APP_PUBLIC_URL'];
+}
+
 return [
     'db.host' => $dbHost !== '' ? $dbHost : '127.0.0.1',
     'db.port' => $dbPort !== '' ? $dbPort : '3306',
@@ -24,6 +29,10 @@ return [
     'db.password' => (string) $dbPassword,
     'db.charset' => 'utf8mb4',
     'db.tablePrefix' => 'tbl_',
+
+    /** Публичный URL этого приложения (https://твой-домен), без слэша в конце — для ссылок и картинок в JSON API */
+    'api.publicBaseUrl' => rtrim($publicUrl, '/'),
+
     'application' => require __DIR__ . '/application.php',
 
     'yiisoft/aliases' => [

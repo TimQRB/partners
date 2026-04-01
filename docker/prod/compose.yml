@@ -1,4 +1,4 @@
-services:
+-services:
   app:
     image: ${IMAGE}:${IMAGE_TAG}
     networks:

@@ -3,67 +3,39 @@
 declare(strict_types=1);
 
 use App\Model\Partnership;
+use App\Service\Lang;
 use Yiisoft\Html\Html;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 /** @var array $card */
 /** @var UrlGeneratorInterface $urlGenerator */
 
+$knownOrgTypes = ['company', 'university', 'research', 'government', 'ngo'];
+$orgTypeKey = (string) ($card['org_type'] ?? '');
+$orgTypeLabel = $orgTypeKey !== '' && in_array($orgTypeKey, $knownOrgTypes, true)
+    ? Lang::t('org_type_' . $orgTypeKey)
+    : $orgTypeKey;
+
 // --- Header ---
 $header = [
-    'title' => (string) ($card['org_name'] ?? ''),
-    'description' => (string) ($card['description'] ?? ''),
+    'title' => Lang::field($card, 'org_name'),
+    'description' => Lang::field($card, 'description'),
     'image' => $card['file_path'] ?? null,
 ];
-
-// --- Тип организации ---
-$orgTypes = [
-    'company' => 'Компания',
-    'university' => 'Университет',
-    'research' => 'Исследовательский центр',
-    'government' => 'Государственная организация',
-    'ngo' => 'НКО',
-];
-$orgTypeKey = (string) ($card['org_type'] ?? '');
-$orgTypeLabel = $orgTypes[$orgTypeKey] ?? ($orgTypeKey !== '' ? $orgTypeKey : '');
 
 // --- Направления (объединяем cooperation_directions + activity_areas + interaction_format) ---
 $coopDirections = Partnership::decodeJson($card['cooperation_directions'] ?? null);
 $activityAreas = Partnership::decodeJson($card['activity_areas'] ?? null);
 $formatItems = Partnership::decodeJson($card['interaction_format'] ?? null);
-
-$coopOptions = [
-    'research' => 'Научные исследования',
-    'education' => 'Образовательные программы',
-    'internships' => 'Стажировки/практика студентов',
-    'joint_projects' => 'Совместные проекты',
-    'commercial' => 'Коммерческие проекты',
-    'grants' => 'Гранты/финансирование',
-    'exchange' => 'Обмен студентами или преподавателями',
-];
-$areaOptions = [
-    'it' => 'IT/технологии',
-    'manufacturing' => 'Производство',
-    'energy' => 'Энергетика',
-    'medicine' => 'Медицина',
-    'education' => 'Образование',
-    'agriculture' => 'Сельское хозяйство',
-    'finance' => 'Финансы',
-];
-$formatOptions = [
-    'joint_research' => 'Научные исследования',
-    'contract_research' => 'Научные исследования',
-    'staff_training' => 'Обучение персонала',
-    'joint_lab' => 'Научные исследования',
-    'industrial_projects' => 'Промышленные проекты',
-    'student_internships' => 'Практика студентов',
-];
+$coopDirections = is_array($coopDirections) ? $coopDirections : [];
+$activityAreas = is_array($activityAreas) ? $activityAreas : [];
+$formatItems = is_array($formatItems) ? $formatItems : [];
 
 $collaborationLabels = [];
 foreach ($coopDirections as $item) {
     $key = is_string($item) ? $item : '';
     if ($key !== '') {
-        $label = $coopOptions[$key] ?? $key;
+        $label = Lang::t('coop_' . $key, $key);
         if (!in_array($label, $collaborationLabels, true)) {
             $collaborationLabels[] = $label;
         }
@@ -72,7 +44,7 @@ foreach ($coopDirections as $item) {
 foreach ($activityAreas as $item) {
     $key = is_string($item) ? $item : '';
     if ($key !== '') {
-        $label = $areaOptions[$key] ?? $key;
+        $label = Lang::t('area_' . $key, $key);
         if (!in_array($label, $collaborationLabels, true)) {
             $collaborationLabels[] = $label;
         }
@@ -81,20 +53,44 @@ foreach ($activityAreas as $item) {
 foreach ($formatItems as $item) {
     $key = is_string($item) ? $item : '';
     if ($key !== '') {
-        $label = $formatOptions[$key] ?? $key;
+        $label = Lang::t('format_' . $key, $key);
         if (!in_array($label, $collaborationLabels, true)) {
             $collaborationLabels[] = $label;
         }
     }
 }
 
-// --- Подзадачи ---
-$subtasks = Partnership::decodeJson($card['subtasks'] ?? null);
-$subtasks = is_array($subtasks) ? array_values(array_filter($subtasks, fn($v) => $v !== '' && $v !== null)) : [];
-
-// --- Цели ---
-$goals = Partnership::decodeJson($card['goals'] ?? null);
-$goals = is_array($goals) ? array_values(array_filter($goals, fn($v) => $v !== '' && $v !== null)) : [];
+// --- Действующие проекты (хранятся в subtasks/subtasks_en как массив объектов) ---
+$projectsRaw = Lang::jsonField($card, 'subtasks');
+$activeProjects = [];
+if (is_array($projectsRaw)) {
+    foreach ($projectsRaw as $project) {
+        if (!is_array($project)) {
+            continue;
+        }
+        $name = trim((string) ($project['name'] ?? ''));
+        if ($name === '') {
+            continue;
+        }
+        $projImages = [];
+        if (is_array($project['images'] ?? null)) {
+            foreach ($project['images'] as $im) {
+                $im = is_string($im) ? trim($im) : '';
+                if ($im !== '' && str_starts_with($im, '/uploads/projects/')) {
+                    $projImages[] = $im;
+                }
+            }
+        }
+        $activeProjects[] = [
+            'name' => $name,
+            'description' => trim((string) ($project['description'] ?? '')),
+            'goals' => is_array($project['goals'] ?? null) ? array_values(array_filter($project['goals'], fn($v) => trim((string) $v) !== '')) : [],
+            'subtasks' => is_array($project['subtasks'] ?? null) ? array_values(array_filter($project['subtasks'], fn($v) => trim((string) $v) !== '')) : [],
+            'ready' => trim((string) ($project['ready'] ?? '')),
+            'images' => $projImages,
+        ];
+    }
+}
 
 // --- Встречи ---
 $events = Partnership::decodeJson($card['events'] ?? null);
@@ -118,12 +114,35 @@ if (!empty($header['image'])) {
         $imgUrl = '/serve/partnership?f=' . rawurlencode(basename(str_replace('\\', '/', $filePath)));
     }
 }
+
+$renderProjectRichText = static function (string $text): string {
+    if (strpos($text, '<') !== false) {
+        $safe = strip_tags($text, '<strong><b><br><img><p><ul><ol><li><em>');
+        $safe = preg_replace('/<b\b[^>]*>/i', '<strong>', $safe) ?? $safe;
+        $safe = preg_replace('/<\/b>/i', '</strong>', $safe) ?? $safe;
+        $safe = preg_replace_callback('/<img[^>]*src=["\']?([^"\'> ]+)["\']?[^>]*>/i', static function (array $m): string {
+            $src = trim((string) ($m[1] ?? ''));
+            if ($src === '' || !preg_match('#^(https?://|/uploads/)#i', $src)) {
+                return '';
+            }
+            return '<img src="' . Html::encode($src) . '" alt="" class="project-inline-img">';
+        }, $safe) ?? $safe;
+        return $safe;
+    }
+
+    $safe = Html::encode($text);
+    $safe = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $safe) ?? $safe;
+    return nl2br($safe);
+};
 ?>
 <div class="project-detail-page">
     <div class="project-detail-container">
 
         <!-- Ссылка назад -->
-        <a href="/" class="project-detail-back">← Все проекты</a>
+        <?php
+        $backUrl = '/?lang=' . rawurlencode(Lang::get());
+        ?>
+        <a href="<?= Html::encode($backUrl) ?>" class="project-detail-back"><?= Html::encode(Lang::t('back_all_projects')) ?></a>
 
         <!-- ========== Главная карточка проекта ========== -->
         <div class="project-card-main">
@@ -152,24 +171,73 @@ if (!empty($header['image'])) {
             </div>
             <div class="project-card-bottom">
                 <p class="project-card-description <?= $header['description'] === '' ? 'is-empty' : '' ?>">
-                    <?= $header['description'] !== '' ? nl2br(Html::encode($header['description'])) : 'Нет описания.' ?>
+                    <?= $header['description'] !== '' ? nl2br(Html::encode($header['description'])) : Html::encode(Lang::t('no_description')) ?>
                 </p>
 
                 <?php if (!empty($descImages)): ?>
                     <div class="project-desc-images">
                         <?php foreach ($descImages as $src): ?>
-                            <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
+                            <div class="project-desc-img-wrap">
+                                <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
+                            </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
 
+        <!-- ========== Действующие проекты (сразу после описания) ========== -->
+        <?php if (!empty($activeProjects)): ?>
+            <section class="project-section">
+                <div class="project-section-header">
+                    <h2><?= Html::encode(Lang::t('section_active_projects')) ?></h2>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    <?php foreach ($activeProjects as $project): ?>
+                        <div class="active-project-item">
+                            <h3 class="active-project-title"><?= Html::encode($project['name']) ?></h3>
+                            <?php if ($project['description'] !== ''): ?>
+                                <div class="active-project-description mb-3"><?= $renderProjectRichText($project['description']) ?></div>
+                            <?php endif; ?>
+                            <?php if (!empty($project['images'])): ?>
+                                <div class="project-desc-images active-project-images mb-3">
+                                    <?php foreach ($project['images'] as $src): ?>
+                                        <div class="project-desc-img-wrap">
+                                            <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($project['goals'])): ?>
+                                <h6 class="mb-2"><?= Html::encode(Lang::t('project_goals')) ?></h6>
+                                <ul class="mb-3">
+                                    <?php foreach ($project['goals'] as $goal): ?>
+                                        <li><?= Html::encode((string) $goal) ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <?php if (!empty($project['subtasks'])): ?>
+                                <h6 class="mb-2"><?= Html::encode(Lang::t('project_subtasks')) ?></h6>
+                                <ul class="mb-3">
+                                    <?php foreach ($project['subtasks'] as $subtask): ?>
+                                        <li><?= Html::encode((string) $subtask) ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <?php if ($project['ready'] !== ''): ?>
+                                <p class="mb-0"><?= Html::encode(Lang::t('project_ready')) ?>: <?= Html::encode($project['ready']) ?></p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
         <!-- ========== Сайт организации ========== -->
         <?php if (!empty($card['website'])): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2>Сайт организации</h2>
+                    <h2><?= Html::encode(Lang::t('section_website')) ?></h2>
                 </div>
                 <a href="<?= Html::encode($card['website']) ?>" target="_blank" rel="noopener" class="project-website-link">
                     <?= Html::encode($card['website']) ?>
@@ -181,7 +249,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($collaborationLabels)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2>Направления сотрудничества</h2>
+                    <h2><?= Html::encode(Lang::t('section_directions')) ?></h2>
                 </div>
                 <div class="directions-grid">
                     <?php foreach ($collaborationLabels as $label): ?>
@@ -194,45 +262,11 @@ if (!empty($header['image'])) {
             </section>
         <?php endif; ?>
 
-        <!-- ========== Подзадачи проекта ========== -->
-        <?php if (!empty($subtasks)): ?>
-            <section class="project-section">
-                <div class="project-section-header">
-                    <h2>Подзадачи проекта</h2>
-                </div>
-                <div class="subtasks-list">
-                    <?php foreach ($subtasks as $i => $text): ?>
-                        <div class="subtask-row">
-                            <div class="subtask-num"><?= $i + 1 ?></div>
-                            <div class="subtask-text"><?= Html::encode(is_string($text) ? $text : (string) $text) ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <!-- ========== Цели проекта ========== -->
-        <?php if (!empty($goals)): ?>
-            <section class="project-section">
-                <div class="project-section-header">
-                    <h2>Цели проекта</h2>
-                </div>
-                <div class="goals-list">
-                    <?php foreach ($goals as $goal): ?>
-                        <div class="goal-row">
-                            <div class="goal-icon"></div>
-                            <div class="goal-text"><?= Html::encode(is_string($goal) ? $goal : (string) $goal) ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
         <!-- ========== Встречи и мероприятия ========== -->
         <?php if (!empty($events)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2>Встречи и мероприятия</h2>
+                    <h2><?= Html::encode(Lang::t('section_events')) ?></h2>
                 </div>
                 <div class="timeline-list">
                     <?php foreach ($events as $event): ?>
@@ -262,7 +296,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($materials)): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2>Дополнительные материалы</h2>
+                    <h2><?= Html::encode(Lang::t('section_materials')) ?></h2>
                 </div>
                 <div class="materials-list">
                     <?php foreach ($materials as $path): ?>
@@ -287,7 +321,7 @@ if (!empty($header['image'])) {
         <?php if (!empty($card['contact_name']) || !empty($card['contact_email']) || !empty($card['contact_phone'])): ?>
             <section class="project-section">
                 <div class="project-section-header">
-                    <h2>Контактное лицо</h2>
+                    <h2><?= Html::encode(Lang::t('section_contact')) ?></h2>
                 </div>
                 <div class="contact-info">
                     <?php if (!empty($card['contact_name'])): ?>
@@ -310,7 +344,7 @@ if (!empty($header['image'])) {
                             </a>
                         <?php endif; ?>
                         <?php if (!empty($card['contact_method'])): ?>
-                            <p class="contact-method">Предпочитаемый способ связи: <?= Html::encode($card['contact_method']) ?></p>
+                            <p class="contact-method"><?= Html::encode(Lang::t('contact_preferred')) ?>: <?= Html::encode($card['contact_method']) ?></p>
                         <?php endif; ?>
                     </div>
                 </div>

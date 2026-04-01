@@ -57,7 +57,7 @@ git push origin main
 |---------------|-------------|
 | **Новая страница на сайте** | Контроллер в `src/Controller/` (или метод в `LandingController`) → маршрут в `config/common/routes.php` → шаблон в `views/landing/` или `views/` |
 | **Новая страница в админке** | Метод в `src/Controller/Admin/AdminController.php` → маршрут в `config/common/routes.php` внутри группы `Group::create('/admin')` → шаблон в `views/admin/` |
-| **Новая таблица или поле в БД** | Схема в `schema/partnership.sql` (или ALTER вручную). Обращение к данным — в `src/Model/` |
+| **Новая таблица или поле в БД** | Docker/MySQL: `schema/partnership.sql`. PostgreSQL-схема: `schema/partnership.pgsql.sql` (legacy). Данные — в `src/Model/` |
 | **Логика работы с БД** | `src/Model/Partnership.php` или новый класс в `src/Model/` |
 | **Вход/выход, сессия** | `src/Service/AuthService.php` |
 | **Защита раздела (только для авторизованных)** | В `config/common/routes.php` добавить маршрут в группу с `->middleware(AuthMiddleware::class)` |
@@ -77,7 +77,8 @@ git push origin main
 yii3/
 ├── config/common/routes.php   # Все маршруты
 ├── config/common/params.php   # БД, layout, параметры view
-├── schema/partnership.sql     # Таблицы и начальные данные
+├── schema/partnership.sql        # Схема для MySQL (Docker)
+├── schema/partnership.pgsql.sql  # Легаси Postgres
 ├── public/                    # index.php, css/, js/, uploads/
 ├── src/
 │   ├── Controller/            # Страницы: Landing, Admin, Logo, Serve

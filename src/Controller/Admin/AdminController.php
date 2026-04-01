@@ -6,8 +6,10 @@ namespace App\Controller\Admin;
 
 use App\Model\Partnership;
 use App\Service\AuthService;
+use App\Service\Lang;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
@@ -76,20 +78,39 @@ final class AdminController
 
     public function partnershipCreate(): ResponseInterface
     {
-        return $this->view->render('admin/partnerships/form', ['model' => null, 'errors' => []]);
+        $isPublic = $this->auth->isGuest();
+
+        return $this->view->render('admin/partnerships/form', [
+            'model' => null,
+            'errors' => [],
+            'isPublic' => $isPublic,
+            'createActionRoute' => $isPublic ? 'public/partnerships/create-post' : 'admin/partnerships/create-post',
+            'cancelRoute' => $isPublic ? 'home' : 'admin/partnerships',
+        ]);
     }
 
     public function partnershipCreatePost(ServerRequestInterface $request): ResponseInterface
     {
-        $data = $this->partnershipDataFromRequest($request);
+        $parsed = $this->partnershipDataFromRequest($request);
+        $data = $this->mergePartnerLocaleFieldsForSave(null, $parsed);
         $filePath = $this->partnershipHandleUpload($request);
         if ($filePath !== null) {
             $data['file_path'] = $filePath;
         }
         $errors = $this->partnershipValidate($data, true, $data['file_path'] ?? null);
         if ($errors !== []) {
-            return $this->view->render('admin/partnerships/form', ['model' => $data, 'errors' => $errors]);
+            $forForm = $this->partnershipFormModelForView(null, $parsed, $data);
+            $isPublic = $this->auth->isGuest();
+
+            return $this->view->render('admin/partnerships/form', [
+                'model' => $forForm,
+                'errors' => $errors,
+                'isPublic' => $isPublic,
+                'createActionRoute' => $isPublic ? 'public/partnerships/create-post' : 'admin/partnerships/create-post',
+                'cancelRoute' => $isPublic ? 'home' : 'admin/partnerships',
+            ]);
         }
+        $data = $this->partnershipMergeProjectAssetsInto($request, $data);
         $materialsJson = $this->partnershipHandleMaterialsUpload($request, null);
         if ($materialsJson !== null) {
             $data['materials'] = $materialsJson;
@@ -99,11 +120,16 @@ final class AdminController
             $data['description_images'] = $descImagesJson;
         }
         $data['data_consent'] = !empty($data['data_consent']) ? 1 : 0;
-        $data['published'] = 1;
+        // New submissions are hidden from public pages until approved by admin.
+        $data['published'] = 0;
         $now = date('Y-m-d H:i:s');
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
         $this->db->createCommand()->insert('{{%partnership}}', $data)->execute();
+        if ($this->auth->isGuest()) {
+            return $this->redirect('home');
+        }
+
         return $this->redirect('admin/partnerships');
     }
 
@@ -122,7 +148,8 @@ final class AdminController
         if ($model === null) {
             throw new \RuntimeException('Not found', 404);
         }
-        $data = $this->partnershipDataFromRequest($request);
+        $parsed = $this->partnershipDataFromRequest($request);
+        $data = $this->mergePartnerLocaleFieldsForSave($model, $parsed);
         $filePath = $this->partnershipHandleUpload($request);
         if ($filePath !== null) {
             $data['file_path'] = $filePath;
@@ -130,8 +157,11 @@ final class AdminController
         $data['file_path'] = $data['file_path'] ?? $model['file_path'] ?? null;
         $errors = $this->partnershipValidate($data, false, $data['file_path']);
         if ($errors !== []) {
-            return $this->view->render('admin/partnerships/form', ['model' => array_merge($model, $data), 'errors' => $errors]);
+            $forForm = $this->partnershipFormModelForView($model, $parsed, $data);
+
+            return $this->view->render('admin/partnerships/form', ['model' => $forForm, 'errors' => $errors]);
         }
+        $data = $this->partnershipMergeProjectAssetsInto($request, $data);
         $existingMaterials = Partnership::decodeJson($model['materials'] ?? null);
         $materialsJson = $this->partnershipHandleMaterialsUpload($request, $existingMaterials);
         if ($materialsJson !== null) {
@@ -155,9 +185,138 @@ final class AdminController
         return $this->redirect('admin/partnerships');
     }
 
+    public function partnershipApprove(ServerRequestInterface $request, #[RouteArgument('id')] string $id): ResponseInterface
+    {
+        $this->db->createCommand()->update(
+            '{{%partnership}}',
+            [
+                'published' => 1,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            ['id' => $id],
+        )->execute();
+
+        return $this->redirect('admin/partnerships');
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function partnershipMergeProjectAssetsInto(ServerRequestInterface $request, array $data): array
+    {
+        $projectsRu = Partnership::decodeJson($data['subtasks'] ?? null);
+        $projectsEn = Partnership::decodeJson($data['subtasks_en'] ?? null);
+        $projectsRu = is_array($projectsRu) ? $projectsRu : [];
+        $projectsEn = is_array($projectsEn) ? $projectsEn : [];
+
+        $projectsRu = $this->partnershipMergeProjectImagesForLocale($request, $projectsRu, 'ru');
+        $projectsEn = $this->partnershipMergeProjectImagesForLocale($request, $projectsEn, 'en');
+
+        $data['subtasks'] = Partnership::encodeJson($projectsRu);
+        $data['subtasks_en'] = Partnership::encodeJson($projectsEn);
+
+        return $data;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $projects
+     * @return list<array<string, mixed>>
+     */
+    private function partnershipMergeProjectImagesForLocale(ServerRequestInterface $request, array $projects, string $locale): array
+    {
+        $body = $request->getParsedBody() ?? [];
+        $removeKey = 'remove_project_images_' . $locale;
+        $toRemove = is_array($body[$removeKey] ?? null) ? $body[$removeKey] : [];
+        $toRemove = array_values(array_filter(
+            array_map(static fn($v) => is_string($v) ? trim($v) : '', $toRemove),
+            static fn($v) => $v !== '',
+        ));
+
+        $filesTree = $request->getUploadedFiles()['project_images_' . $locale] ?? null;
+
+        $root = dirname(__DIR__, 3);
+        $dir = $root . '/public/uploads/projects';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0777, true);
+        }
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        foreach ($projects as $i => &$project) {
+            if (!is_array($project)) {
+                continue;
+            }
+            $images = [];
+            if (isset($project['images']) && is_array($project['images'])) {
+                foreach ($project['images'] as $path) {
+                    $path = is_string($path) ? trim($path) : '';
+                    if ($path === '' || !str_starts_with($path, '/uploads/projects/')) {
+                        continue;
+                    }
+                    if (in_array($path, $toRemove, true)) {
+                        $this->deletePublicUploadIfSafe($path);
+                        continue;
+                    }
+                    $images[] = $path;
+                }
+            }
+            $bucket = null;
+            if (is_array($filesTree) && array_key_exists($i, $filesTree)) {
+                $bucket = $filesTree[$i];
+            }
+            foreach ($this->flattenUploadedFileNodes($bucket) as $file) {
+                if ($file->getError() !== UPLOAD_ERR_OK) {
+                    continue;
+                }
+                $name = $file->getClientFilename();
+                if ($name === '' || $name === null) {
+                    continue;
+                }
+                $mediaType = $file->getClientMediaType();
+                if (!in_array($mediaType, $allowed, true)) {
+                    continue;
+                }
+                $safe = $this->buildUploadFileName($name, $dir);
+                $path = $dir . '/' . $safe;
+                $file->moveTo($path);
+                $publicPath = '/uploads/projects/' . $safe;
+                if (!in_array($publicPath, $images, true)) {
+                    $images[] = $publicPath;
+                }
+            }
+            $project['images'] = $images;
+        }
+        unset($project);
+
+        return $projects;
+    }
+
+    /**
+     * @return list<UploadedFileInterface>
+     */
+    private function flattenUploadedFileNodes(mixed $node): array
+    {
+        if ($node instanceof UploadedFileInterface) {
+            return $node->getError() === UPLOAD_ERR_NO_FILE ? [] : [$node];
+        }
+        if (!is_array($node)) {
+            return [];
+        }
+        $out = [];
+        foreach ($node as $v) {
+            foreach ($this->flattenUploadedFileNodes($v) as $f) {
+                $out[] = $f;
+            }
+        }
+
+        return $out;
+    }
+
     private function partnershipDataFromRequest(ServerRequestInterface $request): array
     {
         $body = $request->getParsedBody() ?? [];
+        $formLocale = Lang::get() === 'en' ? 'en' : 'ru';
+
         $coop = is_array($body['cooperation_directions'] ?? null) ? $body['cooperation_directions'] : [];
         $areas = is_array($body['activity_areas'] ?? null) ? $body['activity_areas'] : [];
         $format = is_array($body['interaction_format'] ?? null) ? $body['interaction_format'] : [];
@@ -177,11 +336,13 @@ final class AdminController
         if ($formatOther !== '') {
             $format[] = $formatOther;
         }
-        $subtasksRaw = trim((string) ($body['subtasks'] ?? ''));
-        $subtasks = $subtasksRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $subtasksRaw)))) : [];
-        
-        $goalsRaw = trim((string) ($body['goals'] ?? ''));
-        $goals = $goalsRaw !== '' ? array_values(array_filter(array_map('trim', explode("\n", $goalsRaw)))) : [];
+        $projectsRu = $this->parseProjectsJson((string) ($body['projects_json_ru'] ?? ''));
+        $projectsEn = $this->parseProjectsJson((string) ($body['projects_json_en'] ?? ''));
+        if ($projectsRu === [] && $projectsEn !== []) {
+            $projectsRu = $projectsEn;
+        } elseif ($projectsEn === [] && $projectsRu !== []) {
+            $projectsEn = $projectsRu;
+        }
 
         $eventsRaw = trim((string) ($body['events'] ?? ''));
         $events = [];
@@ -190,8 +351,13 @@ final class AdminController
             $events = is_array($decoded) ? $decoded : [];
         }
 
-        return [
-            'org_name' => trim((string) ($body['org_name'] ?? '')),
+        $orgNameRu = trim((string) ($body['org_name_ru'] ?? $body['org_name'] ?? ''));
+        $orgNameEn = trim((string) ($body['org_name_en'] ?? ''));
+        $descriptionRu = trim((string) ($body['description_ru'] ?? $body['description'] ?? ''));
+        $descriptionEn = trim((string) ($body['description_en'] ?? ''));
+
+        $emptyJson = Partnership::encodeJson([]);
+        $base = [
             'org_type' => $orgType,
             'country' => trim((string) ($body['country'] ?? '')),
             'city' => trim((string) ($body['city'] ?? '')),
@@ -202,66 +368,144 @@ final class AdminController
             'contact_phone' => trim((string) ($body['contact_phone'] ?? '')),
             'contact_method' => trim((string) ($body['contact_method'] ?? '')),
             'cooperation_directions' => Partnership::encodeJson($coop),
-            'description' => trim((string) ($body['description'] ?? '')),
             'activity_areas' => Partnership::encodeJson($areas),
             'interaction_format' => Partnership::encodeJson($format),
-            'subtasks' => Partnership::encodeJson($subtasks),
-            'goals' => Partnership::encodeJson($goals),
             'events' => Partnership::encodeJson($events),
             'data_consent' => $body['data_consent'] ?? '',
+            '__form_locale' => $formLocale,
+            'subtasks' => Partnership::encodeJson($projectsRu),
+            'subtasks_en' => Partnership::encodeJson($projectsEn),
         ];
+
+        if ($formLocale === 'en') {
+            $base['org_name'] = $orgNameRu;
+            $base['org_name_en'] = $orgNameEn;
+            $base['description'] = $descriptionRu;
+            $base['description_en'] = $descriptionEn;
+            $base['subtasks'] = $base['subtasks'] ?? $emptyJson;
+            $base['subtasks_en'] = $base['subtasks_en'] ?? $emptyJson;
+            $base['goals'] = $emptyJson;
+            $base['goals_en'] = $emptyJson;
+        } else {
+            $base['org_name'] = $orgNameRu;
+            $base['org_name_en'] = $orgNameEn;
+            $base['description'] = $descriptionRu;
+            $base['description_en'] = $descriptionEn;
+            $base['subtasks'] = $base['subtasks'] ?? $emptyJson;
+            $base['subtasks_en'] = $base['subtasks_en'] ?? $emptyJson;
+            $base['goals'] = $emptyJson;
+            $base['goals_en'] = $emptyJson;
+        }
+
+        return $base;
+    }
+
+    /**
+     * При редактировании не затираем поля другой локали.
+     *
+     * @param array<string, mixed>|null $model
+     * @param array<string, mixed> $parsed
+     * @return array<string, mixed>
+     */
+    private function mergePartnerLocaleFieldsForSave(?array $model, array $parsed): array
+    {
+        unset($parsed['__form_locale']);
+        if ($model === null) {
+            return $parsed;
+        }
+        $parsed['goals'] = (string) ($model['goals'] ?? '') !== ''
+            ? (string) $model['goals']
+            : Partnership::encodeJson([]);
+        $parsed['goals_en'] = (string) ($model['goals_en'] ?? '') !== ''
+            ? (string) $model['goals_en']
+            : Partnership::encodeJson([]);
+
+        return $parsed;
+    }
+
+    /**
+     * Модель для повторного показа формы после ошибки валидации.
+     *
+     * @param array<string, mixed>|null $model
+     * @param array<string, mixed> $parsed
+     * @param array<string, mixed> $merged
+     * @return array<string, mixed>
+     */
+    private function partnershipFormModelForView(?array $model, array $parsed, array $merged): array
+    {
+        $formLocale = Lang::get() === 'en' ? 'en' : 'ru';
+        $empty = Partnership::encodeJson([]);
+        $out = array_merge($model ?? [], $merged);
+        unset($out['__form_locale'], $out['_form_locale']);
+
+        if ($formLocale === 'en') {
+            $out['org_name_en'] = (string) ($parsed['org_name_en'] ?? $out['org_name_en'] ?? '');
+            $out['description_en'] = (string) ($parsed['description_en'] ?? $out['description_en'] ?? '');
+            $out['subtasks_en'] = (string) ($parsed['subtasks_en'] ?? $out['subtasks_en'] ?? $empty);
+            $out['goals_en'] = (string) ($parsed['goals_en'] ?? $out['goals_en'] ?? $empty);
+        } else {
+            $out['org_name'] = (string) ($parsed['org_name'] ?? $out['org_name'] ?? '');
+            $out['description'] = (string) ($parsed['description'] ?? $out['description'] ?? '');
+            $out['subtasks'] = (string) ($parsed['subtasks'] ?? $out['subtasks'] ?? $empty);
+            $out['goals'] = (string) ($parsed['goals'] ?? $out['goals'] ?? $empty);
+        }
+
+        return $out;
     }
 
     private function partnershipValidate(array $data, bool $isCreate = false, ?string $logoPath = null): array
     {
         $errors = [];
-        if ($data['org_name'] === '') {
-            $errors[] = 'Название организации обязательно.';
+        if (trim((string) ($data['org_name'] ?? '')) === '' && trim((string) ($data['org_name_en'] ?? '')) === '') {
+            $errors[] = Lang::t('admin_err_org_name');
         }
         if ($data['org_type'] === '') {
-            $errors[] = 'Укажите тип организации.';
+            $errors[] = Lang::t('admin_err_org_type');
         }
         if ($data['country'] === '') {
-            $errors[] = 'Укажите страну.';
+            $errors[] = Lang::t('admin_err_country');
         }
         if ($data['city'] === '') {
-            $errors[] = 'Укажите город.';
+            $errors[] = Lang::t('admin_err_city');
         }
         if ($data['contact_name'] === '') {
-            $errors[] = 'Имя контактного лица обязательно.';
+            $errors[] = Lang::t('admin_err_contact_name');
         }
         if ($data['contact_position'] === '') {
-            $errors[] = 'Укажите должность контактного лица.';
+            $errors[] = Lang::t('admin_err_contact_position');
         }
         if ($data['contact_email'] === '') {
-            $errors[] = 'Email обязателен.';
+            $errors[] = Lang::t('admin_err_email');
         }
         if ($data['contact_phone'] === '') {
-            $errors[] = 'Укажите телефон.';
+            $errors[] = Lang::t('admin_err_phone');
         }
         if ($data['contact_method'] === '') {
-            $errors[] = 'Укажите предпочитаемый способ связи.';
+            $errors[] = Lang::t('admin_err_contact_method');
         }
         $coop = Partnership::decodeJson($data['cooperation_directions'] ?? '');
         if ($coop === []) {
-            $errors[] = 'Выберите хотя бы одно направление сотрудничества.';
+            $errors[] = Lang::t('admin_err_coop');
         }
-        if (trim((string) ($data['description'] ?? '')) === '') {
-            $errors[] = 'Заполните описание.';
+        if (
+            trim((string) ($data['description'] ?? '')) === ''
+            && trim((string) ($data['description_en'] ?? '')) === ''
+        ) {
+            $errors[] = Lang::t('admin_err_description');
         }
         $areas = Partnership::decodeJson($data['activity_areas'] ?? '');
         if ($areas === []) {
-            $errors[] = 'Выберите хотя бы одну область деятельности.';
+            $errors[] = Lang::t('admin_err_areas');
         }
         $format = Partnership::decodeJson($data['interaction_format'] ?? '');
         if ($format === []) {
-            $errors[] = 'Выберите хотя бы один формат взаимодействия.';
+            $errors[] = Lang::t('admin_err_format');
         }
         if (empty($data['data_consent'])) {
-            $errors[] = 'Необходимо согласие на обработку данных.';
+            $errors[] = Lang::t('admin_err_consent');
         }
         if ($isCreate && ($logoPath === null || $logoPath === '')) {
-            $errors[] = 'Загрузите логотип организации.';
+            $errors[] = Lang::t('admin_err_logo');
         }
         return $errors;
     }
@@ -277,14 +521,12 @@ final class AdminController
         if ($name === '' || $name === null) {
             return null;
         }
-        $ext = pathinfo($name, PATHINFO_EXTENSION);
-        $basename = pathinfo($name, PATHINFO_FILENAME);
-        $safe = preg_replace('/[^a-zA-Z0-9_-]/', '_', $basename) . '_' . time() . '.' . $ext;
         $root = dirname(__DIR__, 3);
         $dir = $root . '/public/uploads/partnerships';
         if (!is_dir($dir)) {
             @mkdir($dir, 0777, true);
         }
+        $safe = $this->buildUploadFileName($name, $dir);
         $path = $dir . '/' . $safe;
         $file->moveTo($path);
         return '/uploads/partnerships/' . $safe;
@@ -293,17 +535,29 @@ final class AdminController
     private function partnershipHandleMaterialsUpload(ServerRequestInterface $request, ?array $existing): ?string
     {
         $files = $request->getUploadedFiles();
+        $body = $request->getParsedBody();
+        $toRemove = is_array($body['remove_materials'] ?? null) ? $body['remove_materials'] : [];
+        $toRemove = array_values(array_filter(array_map(static fn($v) => is_string($v) ? trim($v) : '', $toRemove), static fn($v) => $v !== ''));
+        $hasRemovals = $toRemove !== [];
+
         $list = [];
         if (is_array($existing)) {
             foreach ($existing as $path) {
                 if (is_string($path) && $path !== '') {
+                    if (in_array($path, $toRemove, true)) {
+                        $this->deletePublicUploadIfSafe($path);
+                        continue;
+                    }
                     $list[] = $path;
                 }
             }
         }
         $materials = $files['materials'] ?? null;
         if (!is_array($materials)) {
-            return $list === [] ? null : Partnership::encodeJson($list);
+            if ($list === []) {
+                return $hasRemovals ? Partnership::encodeJson([]) : null;
+            }
+            return Partnership::encodeJson($list);
         }
         $root = dirname(__DIR__, 3);
         $dir = $root . '/public/uploads/materials';
@@ -318,9 +572,7 @@ final class AdminController
             if ($name === '' || $name === null) {
                 continue;
             }
-            $ext = pathinfo($name, PATHINFO_EXTENSION);
-            $basename = pathinfo($name, PATHINFO_FILENAME);
-            $safe = preg_replace('/[^a-zA-Z0-9_-]/', '_', $basename) . '_' . time() . '_' . bin2hex(random_bytes(4)) . ($ext !== '' ? '.' . $ext : '');
+            $safe = $this->buildUploadFileName($name, $dir);
             $path = $dir . '/' . $safe;
             $file->moveTo($path);
             $publicPath = '/uploads/materials/' . $safe;
@@ -328,23 +580,38 @@ final class AdminController
                 $list[] = $publicPath;
             }
         }
-        return $list === [] ? null : Partnership::encodeJson($list);
+        if ($list === []) {
+            return $hasRemovals ? Partnership::encodeJson([]) : null;
+        }
+        return Partnership::encodeJson($list);
     }
 
     private function partnershipHandleDescriptionImagesUpload(ServerRequestInterface $request, ?array $existing): ?string
     {
         $files = $request->getUploadedFiles();
+        $body = $request->getParsedBody();
+        $toRemove = is_array($body['remove_description_images'] ?? null) ? $body['remove_description_images'] : [];
+        $toRemove = array_values(array_filter(array_map(static fn($v) => is_string($v) ? trim($v) : '', $toRemove), static fn($v) => $v !== ''));
+        $hasRemovals = $toRemove !== [];
+
         $list = [];
         if (is_array($existing)) {
             foreach ($existing as $path) {
                 if (is_string($path) && $path !== '') {
+                    if (in_array($path, $toRemove, true)) {
+                        $this->deletePublicUploadIfSafe($path);
+                        continue;
+                    }
                     $list[] = $path;
                 }
             }
         }
         $uploads = $files['description_images'] ?? null;
         if (!is_array($uploads)) {
-            return $list === [] ? null : Partnership::encodeJson($list);
+            if ($list === []) {
+                return $hasRemovals ? Partnership::encodeJson([]) : null;
+            }
+            return Partnership::encodeJson($list);
         }
         $root = dirname(__DIR__, 3);
         $dir = $root . '/public/uploads/description';
@@ -364,9 +631,7 @@ final class AdminController
             if (!in_array($mediaType, $allowed, true)) {
                 continue;
             }
-            $ext = pathinfo($name, PATHINFO_EXTENSION) ?: 'jpg';
-            $basename = pathinfo($name, PATHINFO_FILENAME);
-            $safe = preg_replace('/[^a-zA-Z0-9_-]/', '_', $basename) . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+            $safe = $this->buildUploadFileName($name, $dir);
             $path = $dir . '/' . $safe;
             $file->moveTo($path);
             $publicPath = '/uploads/description/' . $safe;
@@ -374,12 +639,127 @@ final class AdminController
                 $list[] = $publicPath;
             }
         }
-        return $list === [] ? null : Partnership::encodeJson($list);
+        if ($list === []) {
+            return $hasRemovals ? Partnership::encodeJson([]) : null;
+        }
+        return Partnership::encodeJson($list);
     }
 
     private function redirect(string $routeName, array $arguments = []): ResponseInterface
     {
         $response = $this->responseFactory->createResponse(Status::FOUND);
         return $response->withHeader('Location', $this->urlGenerator->generate($routeName, $arguments));
+    }
+
+    private function deletePublicUploadIfSafe(string $publicPath): void
+    {
+        if (!str_starts_with($publicPath, '/uploads/')) {
+            return;
+        }
+        $root = dirname(__DIR__, 3);
+        $fullPath = $root . '/public' . $publicPath;
+        $real = realpath($fullPath);
+        $uploadsRoot = realpath($root . '/public/uploads');
+        if ($real === false || $uploadsRoot === false) {
+            return;
+        }
+        if (!str_starts_with($real, $uploadsRoot . DIRECTORY_SEPARATOR)) {
+            return;
+        }
+        if (is_file($real)) {
+            @unlink($real);
+        }
+    }
+
+    /**
+     * Keeps original filename (including Cyrillic), sanitizes unsafe chars,
+     * and appends numeric suffix only on collision.
+     */
+    private function buildUploadFileName(string $originalName, string $dir): string
+    {
+        $fileName = trim(str_replace(["\\", '/'], '_', $originalName));
+        $base = pathinfo($fileName, PATHINFO_FILENAME);
+        $ext = pathinfo($fileName, PATHINFO_EXTENSION);
+
+        $base = preg_replace('/[^\p{L}\p{N}\s._-]/u', '_', (string) $base);
+        $base = preg_replace('/\s+/u', ' ', (string) $base);
+        $base = trim((string) $base);
+        if ($base === '') {
+            $base = 'file';
+        }
+
+        $ext = preg_replace('/[^\p{L}\p{N}]/u', '', (string) $ext);
+        $candidate = $ext !== '' ? ($base . '.' . $ext) : $base;
+        $counter = 1;
+
+        while (is_file($dir . '/' . $candidate)) {
+            $counter++;
+            $candidate = $ext !== '' ? ($base . '_' . $counter . '.' . $ext) : ($base . '_' . $counter);
+        }
+
+        return $candidate;
+    }
+
+    /**
+     * @return list<array{name:string,description:string,goals:list<string>,subtasks:list<string>,ready:string,images:list<string>}>
+     */
+    private function parseProjectsJson(string $projectsRaw): array
+    {
+        $projectsRaw = trim($projectsRaw);
+        if ($projectsRaw === '') {
+            return [];
+        }
+        $decodedProjects = json_decode($projectsRaw, true);
+        if (!is_array($decodedProjects)) {
+            return [];
+        }
+        $projects = [];
+        foreach ($decodedProjects as $project) {
+            if (!is_array($project)) {
+                continue;
+            }
+            $name = trim((string) ($project['name'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            $desc = trim((string) ($project['description'] ?? ''));
+            $status = trim((string) ($project['ready'] ?? ''));
+            $projectGoals = [];
+            if (is_array($project['goals'] ?? null)) {
+                foreach ($project['goals'] as $goal) {
+                    $goal = trim((string) $goal);
+                    if ($goal !== '') {
+                        $projectGoals[] = $goal;
+                    }
+                }
+            }
+            $projectSubtasks = [];
+            if (is_array($project['subtasks'] ?? null)) {
+                foreach ($project['subtasks'] as $subtask) {
+                    $subtask = trim((string) $subtask);
+                    if ($subtask !== '') {
+                        $projectSubtasks[] = $subtask;
+                    }
+                }
+            }
+            $projectImages = [];
+            if (is_array($project['images'] ?? null)) {
+                foreach ($project['images'] as $img) {
+                    $img = trim((string) $img);
+                    if ($img !== '' && str_starts_with($img, '/uploads/projects/')) {
+                        $projectImages[] = $img;
+                    }
+                }
+            }
+            $projects[] = [
+                'name' => $name,
+                'description' => $desc,
+                'goals' => $projectGoals,
+                'subtasks' => $projectSubtasks,
+                'ready' => $status,
+                'images' => $projectImages,
+            ];
+        }
+        return $projects;
     }
 }

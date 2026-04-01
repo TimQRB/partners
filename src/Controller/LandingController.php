@@ -21,9 +21,9 @@ final class LandingController
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         $query = $request->getQueryParams();
-        $search = isset($query['q']) ? trim((string) $query['q']) : null;
-        $cards = Partnership::findAllPublished($this->db, $search);
-        return $this->view->render('landing/index', ['cards' => $cards, 'search' => $search ?? '']);
+        $search = isset($query['q']) ? trim((string) $query['q']) : '';
+        $cards = Partnership::findAllPublished($this->db, null);
+        return $this->view->render('landing/index', ['cards' => $cards, 'search' => $search]);
     }
 
     public function view(#[RouteArgument('id')] string $id): ResponseInterface
