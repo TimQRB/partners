@@ -2,11 +2,11 @@
 
 return [
     // Layout
-    'site_title' => 'Стратегические партнёрства',
+    'site_title' => 'Международные партнерства и проекты',
 
     // Hero
-    'hero_title_line1' => 'Стратегические',
-    'hero_title_line2' => 'партнёрства',
+    'hero_title_line1' => 'Международные партнерства',
+    'hero_title_line2' => 'и проекты',
     'hero_cta_form' => 'Заполнить форму',
     'logo_alt_partner' => 'Логотип партнёра',
     'card_title_fallback' => 'Название',

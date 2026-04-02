@@ -1,15 +1,15 @@
 {
-    "name": "yiisoft/app",
+    "name": "timqrb/partners",
     "type": "project",
-    "description": "Yii3 web application template",
+    "description": "Kozybayev University partnerships landing (Yii 3)",
     "keywords": [
         "yii3",
         "app"
     ],
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/app/issues?state=open",
-        "source": "https://github.com/yiisoft/app",
+        "issues": "https://github.com/TimQRB/partners/issues",
+        "source": "https://github.com/TimQRB/partners",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "ircs://irc.libera.chat:6697/yii",

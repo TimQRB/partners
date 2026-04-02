@@ -1,3 +1,5 @@
+name: landing_sku
+
 services:
   app: &appconfig
     extra_hosts:

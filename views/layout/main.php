@@ -9,12 +9,15 @@ use Yiisoft\Html\Html;
 /** @var string $content */
 $requestUri = $_SERVER['REQUEST_URI'] ?? '';
 $isAdmin = (strpos($requestUri, '/admin') === 0);
-$isProjectDetail = (preg_match('#^/card/\d+#', $requestUri) === 1);
 $path = parse_url($requestUri, PHP_URL_PATH) ?: '/';
+/** Публичная анкета без логина — та же форма, что в админке: нужны admin.css / admin-form.css и разметка как у админа */
+$isPublicPartnershipForm = ($path === '/partnerships/create');
+$useAdminShell = $isAdmin || $isPublicPartnershipForm;
+$isProjectDetail = (preg_match('#^/card/\d+#', $requestUri) === 1);
 $isHome = $path === '/';
 /** Публичные страницы не главная: тот же навбар, что на главной, нужна подложка и отступ у main */
-$needsNavbarUnderlay = !$isAdmin && !$isHome;
-$bodyClass = $isAdmin ? 'admin-layout' : ($isProjectDetail ? 'landing-layout project-detail-page' : 'landing-layout');
+$needsNavbarUnderlay = !$useAdminShell && !$isHome;
+$bodyClass = $useAdminShell ? 'admin-layout' : ($isProjectDetail ? 'landing-layout project-detail-page' : 'landing-layout');
 $lang = Lang::get();
 parse_str((string) parse_url($requestUri, PHP_URL_QUERY), $langQuery);
 $langQueryRu = array_merge($langQuery, ['lang' => 'ru']);
@@ -37,7 +40,7 @@ $this->beginPage();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/landing.css">
-    <?php if ($isAdmin): ?><link rel="stylesheet" href="/css/admin.css">
+    <?php if ($useAdminShell): ?><link rel="stylesheet" href="/css/admin.css">
         <link rel="stylesheet" href="/css/admin-form.css"><?php endif; ?>
     <?php if ($isProjectDetail): ?><link rel="stylesheet" href="/css/project-detail.css"><?php endif; ?>
     <?php $this->head() ?>
@@ -50,7 +53,7 @@ $this->beginPage();
         <div class="landing-navbar-underlay" aria-hidden="true"></div>
     <?php endif; ?>
     <?php
-    $navbarExtra = $isAdmin ? '' : 'position-absolute w-100 z-3';
+    $navbarExtra = $useAdminShell ? '' : 'position-absolute w-100 z-3';
     ?>
     <header class="site-navbar <?= $navbarExtra ?>">
         <div class="container d-flex justify-content-between align-items-center py-4">
@@ -58,7 +61,7 @@ $this->beginPage();
                 <img src="/uploads/logo_white.png" alt="KOZYBAYEV UNIVERSITY" class="navbar-brand-logo" height="70"
                     onerror="this.style.display='none'">
             </a>
-            <?php if ($isHome): ?>
+            <?php if ($isHome || $isPublicPartnershipForm): ?>
                 <div class="lang-switch">
                     <a href="<?= Html::encode($urlLangRu) ?>" class="lang-btn<?= $lang === 'ru' ? ' active' : '' ?>">RU</a>
                     <a href="<?= Html::encode($urlLangEn) ?>" class="lang-btn<?= $lang === 'en' ? ' active' : '' ?>">EN</a>

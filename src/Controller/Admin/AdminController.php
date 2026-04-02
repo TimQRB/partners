@@ -126,11 +126,14 @@ final class AdminController
         $data['created_at'] = $now;
         $data['updated_at'] = $now;
         $this->db->createCommand()->insert('{{%partnership}}', $data)->execute();
-        if ($this->auth->isGuest()) {
-            return $this->redirect('home');
-        }
+        // Публичная форма отправляет на /partnerships/create (без /admin в пути),
+        // а админская — на /admin/partnerships/create.
+        $path = $request->getUri()->getPath();
+        $isAdminRoute = str_starts_with($path, '/admin');
 
-        return $this->redirect('admin/partnerships');
+        return $isAdminRoute
+            ? $this->redirect('admin/partnerships')
+            : $this->redirect('home');
     }
 
     public function partnershipEdit(#[RouteArgument('id')] string $id): ResponseInterface
