@@ -18,8 +18,8 @@ services:
       context: ..
       target: dev
       args:
-        USER_ID: ${UID}
-        GROUP_ID: ${GID}
+        USER_ID: ${UID:-1000}
+        GROUP_ID: ${GID:-1000}
     depends_on:
       mysql:
         condition: service_healthy
@@ -38,6 +38,7 @@ services:
     volumes:
       - ../:/app
       - ../runtime:/app/runtime
+      - ../docker/php-max-execution.ini:/usr/local/etc/php/conf.d/99-dev.ini:ro
       - caddy_data:/data
       - caddy_config:/config
     command: ["frankenphp", "run", "--config", "/app/docker/Caddyfile", "--adapter", "caddyfile"]

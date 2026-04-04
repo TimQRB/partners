@@ -22,8 +22,10 @@ $lang = Lang::get();
 parse_str((string) parse_url($requestUri, PHP_URL_QUERY), $langQuery);
 $langQueryRu = array_merge($langQuery, ['lang' => 'ru']);
 $langQueryEn = array_merge($langQuery, ['lang' => 'en']);
+$langQueryKz = array_merge($langQuery, ['lang' => 'kz']);
 $urlLangRu = $path . '?' . http_build_query($langQueryRu);
 $urlLangEn = $path . '?' . http_build_query($langQueryEn);
+$urlLangKz = $path . '?' . http_build_query($langQueryKz);
 $this->beginPage();
 ?>
 <!DOCTYPE html>
@@ -53,18 +55,24 @@ $this->beginPage();
         <div class="landing-navbar-underlay" aria-hidden="true"></div>
     <?php endif; ?>
     <?php
-    $navbarExtra = $useAdminShell ? '' : 'position-absolute w-100 z-3';
+    $navbarExtra = $useAdminShell ? '' : ($isHome ? 'navbar-home' : 'position-absolute w-100 z-3');
     ?>
     <header class="site-navbar <?= $navbarExtra ?>">
-        <div class="container d-flex justify-content-between align-items-center py-4">
+        <div class="container-fluid px-3 px-md-5 d-flex justify-content-between align-items-center py-2">
             <a href="/" class="navbar-brand d-flex align-items-center text-decoration-none">
-                <img src="/uploads/logo_white.png" alt="KOZYBAYEV UNIVERSITY" class="navbar-brand-logo" height="70"
-                    onerror="this.style.display='none'">
+                <?php if ($isHome): ?>
+                    <img src="/uploads/logo_blue.png" alt="KOZYBAYEV UNIVERSITY" class="navbar-brand-logo" height="50"
+                        onerror="this.style.display='none'">
+                <?php else: ?>
+                    <img src="/uploads/logo_white.png" alt="KOZYBAYEV UNIVERSITY" class="navbar-brand-logo" height="50"
+                        onerror="this.style.display='none'">
+                <?php endif; ?>
             </a>
             <?php if ($isHome || $isPublicPartnershipForm): ?>
                 <div class="lang-switch">
                     <a href="<?= Html::encode($urlLangRu) ?>" class="lang-btn<?= $lang === 'ru' ? ' active' : '' ?>">RU</a>
                     <a href="<?= Html::encode($urlLangEn) ?>" class="lang-btn<?= $lang === 'en' ? ' active' : '' ?>">EN</a>
+                    <a href="<?= Html::encode($urlLangKz) ?>" class="lang-btn<?= $lang === 'kz' ? ' active' : '' ?>">KZ</a>
                 </div>
             <?php endif; ?>
         </div>

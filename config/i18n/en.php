@@ -7,16 +7,16 @@ return [
     // Hero
     'hero_title_line1' => 'Strategic',
     'hero_title_line2' => 'Partnerships',
-    'hero_cta_form' => 'Fill out the form',
+    'hero_cta_form' => 'Start partnership',
     'logo_alt_partner' => 'Partner logo',
     'card_title_fallback' => 'Title',
     'hero_subtitle' => 'Building bridges and promoting innovation through global cooperation.',
 
     // Search
-    'search_placeholder' => 'Name, description, country, city...',
+    'search_placeholder' => 'Search by name...',
     'search_all' => 'ALL',
     'search_no_results' => 'No matches. Try a different search.',
-    'section_partners' => 'Our partners',
+    'section_partners' => 'INTERNATIONAL PARTNERS',
 
     // Cards
     'card_no_description' => 'No description available...',

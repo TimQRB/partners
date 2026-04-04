@@ -177,9 +177,9 @@ $renderProjectRichText = static function (string $text): string {
                 <?php if (!empty($descImages)): ?>
                     <div class="project-desc-images">
                         <?php foreach ($descImages as $src): ?>
-                            <div class="project-desc-img-wrap">
+                            <a href="<?= Html::encode($src) ?>" data-fslightbox="gallery-desc" class="project-desc-img-wrap">
                                 <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
-                            </div>
+                            </a>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
@@ -201,10 +201,10 @@ $renderProjectRichText = static function (string $text): string {
                             <?php endif; ?>
                             <?php if (!empty($project['images'])): ?>
                                 <div class="project-desc-images active-project-images mb-3">
-                                    <?php foreach ($project['images'] as $src): ?>
-                                        <div class="project-desc-img-wrap">
+                                    <?php foreach ($project['images'] as $idx => $src): ?>
+                                        <a href="<?= Html::encode($src) ?>" data-fslightbox="gallery-proj-<?= md5($project['name']) ?>" class="project-desc-img-wrap">
                                             <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
-                                        </div>
+                                        </a>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
@@ -353,3 +353,4 @@ $renderProjectRichText = static function (string $text): string {
 
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js"></script>

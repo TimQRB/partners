@@ -127,19 +127,23 @@
 /* Изображения к описанию */
 .project-desc-images {
     margin-top: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
 }
 
 .project-desc-img-wrap {
-    width: 100%;
-    height: 260px;
+    display: block; /* since it's an a tag now */
+    flex: 0 1 300px;
+    height: 220px;
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid #e6e6e6;
     background: #f6f7f8;
     box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none; /* In case it inherits link styling */
 }
 
 .project-desc-img {
@@ -147,17 +151,24 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
 @media (max-width: 768px) {
     .project-desc-img-wrap {
+        flex: 1 1 100%; /* Full width on mobile */
         height: 220px;
     }
 }
 
-.project-desc-img:hover {
-    transform: none;
-    box-shadow: none;
+.project-desc-img-wrap:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.project-desc-img-wrap:hover .project-desc-img {
+    transform: scale(1.05); /* Slight zoom effect on hover inside the box */
 }
 
 .active-project-item {

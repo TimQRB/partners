@@ -5,18 +5,18 @@ return [
     'site_title' => 'Международные партнерства и проекты',
 
     // Hero
-    'hero_title_line1' => 'Международные партнерства',
-    'hero_title_line2' => 'и проекты',
-    'hero_cta_form' => 'Заполнить форму',
+    'hero_title_line1' => 'Международные',
+    'hero_title_line2' => 'партнеры и проекты',
+    'hero_cta_form' => 'Начать партнёрство',
     'logo_alt_partner' => 'Логотип партнёра',
     'card_title_fallback' => 'Название',
     'hero_subtitle' => 'Построение мостов и продвижение инноваций через глобальное сотрудничество.',
 
     // Search
-    'search_placeholder' => 'Название, описание, страна, город...',
+    'search_placeholder' => 'Поиск по названию...',
     'search_all' => 'ВСЕ',
     'search_no_results' => 'Ничего не найдено. Попробуйте другой запрос.',
-    'section_partners' => 'Наши партнеры',
+    'section_partners' => 'МЕЖДУНАРОДНЫЕ ПАРТНЕРЫ',
 
     // Cards
     'card_no_description' => 'Описание отсутствует...',
