@@ -78,39 +78,38 @@ $searchNormalize = static function (string $s): string {
                 ?>
                 <div class="col-md-6 col-lg-4 partner-card-col" data-partner-search="<?= Html::encode($searchBlob) ?>">
                     <div class="card card-partner-minimal h-100">
-                        <!-- Teal Top Band -->
-                        <div class="card-partner-header-band"></div>
+                        <div class="card-partner-inner d-flex flex-column flex-grow-1">
+                            <!-- Logo & Title Area -->
+                            <div class="card-partner-header-content d-flex align-items-center">
+                                <?php if ($imgUrl): ?>
+                                    <div class="partner-logo-box-outline d-flex align-items-center justify-content-center flex-shrink-0">
+                                        <img src="<?= Html::encode($imgUrl) ?>" alt="<?= Html::encode(Lang::t('logo_alt_partner')) ?>" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%; border-radius: 12px;">
+                                    </div>
+                                <?php else: ?>
+                                    <div class="partner-logo-box-outline d-flex align-items-center justify-content-center flex-shrink-0">
+                                        <i class="bi bi-building" style="font-size: 2rem; color: var(--dusty-blue); opacity: 0.6;"></i>
+                                    </div>
+                                <?php endif; ?>
+                                <h3 class="partner-name-minimal ms-3 m-0 fw-bold name-clamped"><?= Html::encode($title) ?></h3>
+                            </div>
 
-                        <!-- Logo & Title Area -->
-                        <div class="card-partner-header-content d-flex align-items-center">
-                            <?php if ($imgUrl): ?>
-                                <div class="partner-logo-box-outline d-flex align-items-center justify-content-center flex-shrink-0">
-                                    <img src="<?= Html::encode($imgUrl) ?>" alt="<?= Html::encode(Lang::t('logo_alt_partner')) ?>" class="img-fluid" style="object-fit: contain; width: 100%; height: 100%; border-radius: 12px;">
-                                </div>
-                            <?php else: ?>
-                                <div class="partner-logo-box-outline d-flex align-items-center justify-content-center flex-shrink-0">
-                                    <i class="bi bi-building" style="font-size: 2rem; color: var(--dusty-blue); opacity: 0.6;"></i>
-                                </div>
-                            <?php endif; ?>
-                            <h3 class="partner-name-minimal ms-3 m-0 fw-bold name-clamped"><?= Html::encode($title) ?></h3>
-                        </div>
+                            <hr class="card-partner-divider m-0">
 
-                        <hr class="card-partner-divider m-0">
+                            <!-- Description Area -->
+                            <div class="card-body card-partner-body d-flex flex-column">
+                                <p class="card-text mb-4 description-clamped flex-grow-1">
+                                    <?= $desc === '' ? Html::encode(Lang::t('card_no_description')) : Html::encode($desc) ?>
+                                </p>
+                            </div>
 
-                        <!-- Description Area -->
-                        <div class="card-body card-partner-body d-flex flex-column">
-                            <p class="card-text mb-4 description-clamped flex-grow-1">
-                                <?= $desc === '' ? Html::encode(Lang::t('card_no_description')) : Html::encode($desc) ?>
-                            </p>
-                        </div>
+                            <hr class="card-partner-divider m-0">
 
-                        <hr class="card-partner-divider m-0">
-
-                        <!-- Footer Area -->
-                        <div class="card-footer card-partner-footer bg-white border-0">
-                            <a href="<?= $urlGenerator->generate('card-view', $cardUrlArgs) ?>" class="btn-more-minimal fw-bold text-decoration-none">
-                                <?= Html::encode(Lang::t('card_more')) ?>
-                            </a>
+                            <!-- Footer Area -->
+                            <div class="card-footer card-partner-footer bg-transparent border-0">
+                                <a href="<?= $urlGenerator->generate('card-view', $cardUrlArgs) ?>" class="btn-more-minimal fw-bold text-decoration-none">
+                                    <?= Html::encode(Lang::t('card_more')) ?>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

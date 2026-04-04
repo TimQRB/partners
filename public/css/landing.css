@@ -338,10 +338,11 @@ body.landing-layout::before {
    6. Partner Cards (Minimal Design)
    ============================================================ */
 .card-partner-minimal {
-    border-radius: 16px;
+    border-radius: 28px;
     border: 1px solid #b8b8b8 !important; /* Grey border */
     overflow: hidden;
-    background-color: #ffffff;
+    background-color: var(--dusty-blue); /* Solid teal background for outer card acting as underlay */
+    padding-top: 28px; /* Increased to make the teal header noticeably thicker */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -350,11 +351,14 @@ body.landing-layout::before {
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
 }
 
-.card-partner-header-band {
-    height: 18px;
-    background-color: var(--dusty-blue);
-    width: 100%;
+.card-partner-inner {
+    background-color: #ffffff;
+    border-radius: 24px 24px 0 0; /* Deep inner curve to reveal teal corners */
+    border-top: 1px solid #b8b8b8; 
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06); /* Shadow to make the white card float over the teal layer */
 }
+
+/* We removed: .card-partner-header-band */
 
 .card-partner-header-content {
     padding: 16px 20px;
