@@ -39,10 +39,29 @@ $this->setParameter('pageTitle', $isEdit ? Lang::t('admin_form_edit') : Lang::t(
 $action = $isEdit
     ? $urlGenerator->generate('admin/partnerships/edit-post', ['id' => $model['id']])
     : $urlGenerator->generate($createActionRoute);
-$coopDecoded = $model ? (is_string($model['cooperation_directions'] ?? '') ? json_decode($model['cooperation_directions'], true) : []) : [];
-$areasDecoded = $model ? (is_string($model['activity_areas'] ?? '') ? json_decode($model['activity_areas'], true) : []) : [];
-$coopDecoded = is_array($coopDecoded) ? $coopDecoded : [];
-$areasDecoded = is_array($areasDecoded) ? $areasDecoded : [];
+
+if (!function_exists('normalizeAssocList')) {
+    function normalizeAssocList($raw) {
+        $res = [];
+        if (is_array($raw)) {
+            foreach ($raw as $k => $v) {
+                if (is_int($k)) {
+                    $res[(string) $v] = '';
+                } else {
+                    $res[(string) $k] = (string) $v;
+                }
+            }
+        }
+        return $res;
+    }
+}
+$coopDecodedRaw = $model ? (is_string($model['cooperation_directions'] ?? '') ? json_decode($model['cooperation_directions'], true) : []) : [];
+$areasDecodedRaw = $model ? (is_string($model['activity_areas'] ?? '') ? json_decode($model['activity_areas'], true) : []) : [];
+$formatDecodedRaw = $model ? (is_string($model['interaction_format'] ?? '') ? json_decode($model['interaction_format'], true) : []) : [];
+
+$coopDecoded = normalizeAssocList($coopDecodedRaw);
+$areasDecoded = normalizeAssocList($areasDecodedRaw);
+$formatDecoded = normalizeAssocList($formatDecodedRaw);
 
 $orgTypes = [];
 foreach (['company', 'university', 'research', 'government', 'ngo', 'other'] as $ok) {
@@ -208,16 +227,30 @@ $adminFormJsI18n = json_encode([
                 <h3 class="admin-form-section-heading"><span><?= Html::encode(Lang::t('admin_section_3')) ?> <span class="text-danger">*</span></span></h3>
                 <ul class="admin-form-bullet-list">
                 <?php foreach ($coopOptions as $val => $label): ?>
-                    <li class="admin-form-bullet-item">
-                        <span class="admin-form-bullet-dot"></span>
-                        <input class="form-check-input" type="checkbox" name="cooperation_directions[]" value="<?= Html::encode($val) ?>" id="coop_<?= Html::encode($val) ?>" <?= in_array($val, $coopDecoded, true) ? 'checked' : '' ?>>
-                        <label for="coop_<?= Html::encode($val) ?>"><?= Html::encode($label) ?></label>
+                    <?php $isChecked = array_key_exists($val, $coopDecoded); ?>
+                    <li class="admin-form-bullet-item flex-wrap" style="align-items: flex-start; padding: 10px; background: #fff; border: 1px solid #dee2e6; border-radius: 8px;">
+                        <div class="d-flex align-items-center gap-2 w-100">
+                            <span class="admin-form-bullet-dot"></span>
+                            <input class="form-check-input item-checkbox" type="checkbox" name="cooperation_directions[]" value="<?= Html::encode($val) ?>" id="coop_<?= Html::encode($val) ?>" <?= $isChecked ? 'checked' : '' ?>>
+                            <label for="coop_<?= Html::encode($val) ?>" class="flex-grow-1" style="border: none; background: transparent; padding: 0; margin-bottom: 0; cursor: pointer;"><?= Html::encode($label) ?></label>
+                        </div>
+                        <div class="item-description-wrap w-100 mt-2" style="<?= $isChecked ? '' : 'display:none;' ?>">
+                            <textarea name="cooperation_directions_desc[<?= Html::encode($val) ?>]" class="form-control form-control-sm" placeholder="Описание (необязательно)" rows="2"><?= Html::encode($isChecked ? $coopDecoded[$val] : '') ?></textarea>
+                        </div>
                     </li>
                 <?php endforeach; ?>
                 </ul>
-                <div class="admin-form-other-wrap">
+                <div class="admin-form-other-wrap mt-3 p-3 bg-white border border-light rounded-3">
                     <label class="form-label small"><?= Html::encode(Lang::t('admin_other_specify')) ?></label>
-                    <input type="text" name="cooperation_directions_other" class="form-control form-control-sm" placeholder="<?= Html::encode(Lang::t('admin_coop_other_ph')) ?>" value="<?= Html::encode(implode(', ', array_filter($coopDecoded, fn($v) => !isset($coopOptions[$v])))) ?>">
+                    <?php
+                    $otherKeys = array_filter(array_keys($coopDecoded), fn($v) => !isset($coopOptions[$v]));
+                    $otherKey = !empty($otherKeys) ? reset($otherKeys) : '';
+                    $otherDesc = $otherKey !== '' ? $coopDecoded[$otherKey] : '';
+                    ?>
+                    <input type="text" name="cooperation_directions_other" class="form-control form-control-sm item-other-input" placeholder="<?= Html::encode(Lang::t('admin_coop_other_ph')) ?>" value="<?= Html::encode($otherKey) ?>">
+                    <div class="item-other-description-wrap mt-2" style="<?= $otherKey !== '' ? '' : 'display:none;' ?>">
+                        <textarea name="cooperation_directions_other_desc" class="form-control form-control-sm" placeholder="Описание (необязательно)" rows="2"><?= Html::encode($otherDesc) ?></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -276,16 +309,30 @@ $adminFormJsI18n = json_encode([
                 <h3 class="admin-form-section-heading"><span><?= Html::encode(Lang::t('admin_section_5')) ?> <span class="text-danger">*</span></span></h3>
                 <ul class="admin-form-bullet-list">
                 <?php foreach ($areaOptions as $val => $label): ?>
-                    <li class="admin-form-bullet-item">
-                        <span class="admin-form-bullet-dot"></span>
-                        <input class="form-check-input" type="checkbox" name="activity_areas[]" value="<?= Html::encode($val) ?>" id="area_<?= Html::encode($val) ?>" <?= in_array($val, $areasDecoded, true) ? 'checked' : '' ?>>
-                        <label for="area_<?= Html::encode($val) ?>"><?= Html::encode($label) ?></label>
+                    <?php $isChecked = array_key_exists($val, $areasDecoded); ?>
+                    <li class="admin-form-bullet-item flex-wrap" style="align-items: flex-start; padding: 10px; background: #fff; border: 1px solid #dee2e6; border-radius: 8px;">
+                        <div class="d-flex align-items-center gap-2 w-100">
+                            <span class="admin-form-bullet-dot"></span>
+                            <input class="form-check-input item-checkbox" type="checkbox" name="activity_areas[]" value="<?= Html::encode($val) ?>" id="area_<?= Html::encode($val) ?>" <?= $isChecked ? 'checked' : '' ?>>
+                            <label for="area_<?= Html::encode($val) ?>" class="flex-grow-1" style="border: none; background: transparent; padding: 0; margin-bottom: 0; cursor: pointer;"><?= Html::encode($label) ?></label>
+                        </div>
+                        <div class="item-description-wrap w-100 mt-2" style="<?= $isChecked ? '' : 'display:none;' ?>">
+                            <textarea name="activity_areas_desc[<?= Html::encode($val) ?>]" class="form-control form-control-sm" placeholder="Описание (необязательно)" rows="2"><?= Html::encode($isChecked ? $areasDecoded[$val] : '') ?></textarea>
+                        </div>
                     </li>
                 <?php endforeach; ?>
                 </ul>
-                <div class="admin-form-other-wrap">
+                <div class="admin-form-other-wrap mt-3 p-3 bg-white border border-light rounded-3">
                     <label class="form-label small"><?= Html::encode(Lang::t('admin_other_specify')) ?></label>
-                    <input type="text" name="activity_areas_other" class="form-control form-control-sm" placeholder="<?= Html::encode(Lang::t('admin_area_other_ph')) ?>" value="<?= Html::encode(implode(', ', array_filter($areasDecoded, fn($v) => !isset($areaOptions[$v])))) ?>">
+                    <?php
+                    $otherKeys = array_filter(array_keys($areasDecoded), fn($v) => !isset($areaOptions[$v]));
+                    $otherKey = !empty($otherKeys) ? reset($otherKeys) : '';
+                    $otherDesc = $otherKey !== '' ? $areasDecoded[$otherKey] : '';
+                    ?>
+                    <input type="text" name="activity_areas_other" class="form-control form-control-sm item-other-input" placeholder="<?= Html::encode(Lang::t('admin_area_other_ph')) ?>" value="<?= Html::encode($otherKey) ?>">
+                    <div class="item-other-description-wrap mt-2" style="<?= $otherKey !== '' ? '' : 'display:none;' ?>">
+                        <textarea name="activity_areas_other_desc" class="form-control form-control-sm" placeholder="Описание (необязательно)" rows="2"><?= Html::encode($otherDesc) ?></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -293,22 +340,32 @@ $adminFormJsI18n = json_encode([
         <div class="admin-form-card">
             <div class="card-body">
                 <h3 class="admin-form-section-heading"><span><?= Html::encode(Lang::t('admin_section_6')) ?> <span class="text-danger">*</span></span></h3>
-                <?php
-                $formatDecoded = $model ? (is_string($model['interaction_format'] ?? '') ? json_decode($model['interaction_format'], true) : []) : [];
-                $formatDecoded = is_array($formatDecoded) ? $formatDecoded : [];
-                ?>
                 <ul class="admin-form-bullet-list">
                 <?php foreach ($formatOptions as $val => $label): ?>
-                    <li class="admin-form-bullet-item">
-                        <span class="admin-form-bullet-dot"></span>
-                        <input class="form-check-input" type="checkbox" name="interaction_format[]" value="<?= Html::encode($val) ?>" id="format_<?= Html::encode($val) ?>" <?= in_array($val, $formatDecoded, true) ? 'checked' : '' ?>>
-                        <label for="format_<?= Html::encode($val) ?>"><?= Html::encode($label) ?></label>
+                    <?php $isChecked = array_key_exists($val, $formatDecoded); ?>
+                    <li class="admin-form-bullet-item flex-wrap" style="align-items: flex-start; padding: 10px; background: #fff; border: 1px solid #dee2e6; border-radius: 8px;">
+                        <div class="d-flex align-items-center gap-2 w-100">
+                            <span class="admin-form-bullet-dot"></span>
+                            <input class="form-check-input item-checkbox" type="checkbox" name="interaction_format[]" value="<?= Html::encode($val) ?>" id="format_<?= Html::encode($val) ?>" <?= $isChecked ? 'checked' : '' ?>>
+                            <label for="format_<?= Html::encode($val) ?>" class="flex-grow-1" style="border: none; background: transparent; padding: 0; margin-bottom: 0; cursor: pointer;"><?= Html::encode($label) ?></label>
+                        </div>
+                        <div class="item-description-wrap w-100 mt-2" style="<?= $isChecked ? '' : 'display:none;' ?>">
+                            <textarea name="interaction_format_desc[<?= Html::encode($val) ?>]" class="form-control form-control-sm" placeholder="Описание (необязательно)" rows="2"><?= Html::encode($isChecked ? $formatDecoded[$val] : '') ?></textarea>
+                        </div>
                     </li>
                 <?php endforeach; ?>
                 </ul>
-                <div class="admin-form-other-wrap">
+                <div class="admin-form-other-wrap mt-3 p-3 bg-white border border-light rounded-3">
                     <label class="form-label small"><?= Html::encode(Lang::t('admin_other_specify')) ?></label>
-                    <input type="text" name="interaction_format_other" class="form-control form-control-sm" placeholder="<?= Html::encode(Lang::t('admin_format_other_ph')) ?>" value="<?= Html::encode(implode(', ', array_filter($formatDecoded, fn($v) => !isset($formatOptions[$v])))) ?>">
+                    <?php
+                    $otherKeys = array_filter(array_keys($formatDecoded), fn($v) => !isset($formatOptions[$v]));
+                    $otherKey = !empty($otherKeys) ? reset($otherKeys) : '';
+                    $otherDesc = $otherKey !== '' ? $formatDecoded[$otherKey] : '';
+                    ?>
+                    <input type="text" name="interaction_format_other" class="form-control form-control-sm item-other-input" placeholder="<?= Html::encode(Lang::t('admin_format_other_ph')) ?>" value="<?= Html::encode($otherKey) ?>">
+                    <div class="item-other-description-wrap mt-2" style="<?= $otherKey !== '' ? '' : 'display:none;' ?>">
+                        <textarea name="interaction_format_other_desc" class="form-control form-control-sm" placeholder="Описание (необязательно)" rows="2"><?= Html::encode($otherDesc) ?></textarea>
+                    </div>
                 </div>
             </div>
         </div>
@@ -511,11 +568,27 @@ $adminFormJsI18n = json_encode([
             <button type="submit" class="btn btn-primary"><?= Html::encode($isEdit ? Lang::t('admin_save') : Lang::t('admin_create')) ?></button>
             <a href="<?= $urlGenerator->generate($cancelRoute) ?>" class="btn btn-outline-secondary"><?= Html::encode(Lang::t('admin_cancel')) ?></a>
         </div>
-    </form>
+</form>
 </div>
 </div>
 <script>
 var adminFormI18n = <?= $adminFormJsI18n ?>;
+document.querySelectorAll('.item-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+        var wrap = this.closest('.admin-form-bullet-item').querySelector('.item-description-wrap');
+        if (wrap) {
+            wrap.style.display = this.checked ? 'block' : 'none';
+        }
+    });
+});
+document.querySelectorAll('.item-other-input').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+        var wrap = this.closest('.admin-form-other-wrap').querySelector('.item-other-description-wrap');
+        if (wrap) {
+            wrap.style.display = this.value.trim() !== '' ? 'block' : 'none';
+        }
+    });
+});
 document.getElementById('org_type_select').addEventListener('change', function() {
     document.getElementById('org_type_other').style.display = this.value === 'other' ? 'block' : 'none';
 });

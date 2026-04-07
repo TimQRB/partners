@@ -31,31 +31,42 @@ $coopDirections = is_array($coopDirections) ? $coopDirections : [];
 $activityAreas = is_array($activityAreas) ? $activityAreas : [];
 $formatItems = is_array($formatItems) ? $formatItems : [];
 
-$collaborationLabels = [];
-foreach ($coopDirections as $item) {
-    $key = is_string($item) ? $item : '';
-    if ($key !== '') {
-        $label = Lang::t('coop_' . $key, $key);
-        if (!in_array($label, $collaborationLabels, true)) {
-            $collaborationLabels[] = $label;
+$collaborationItems = [];
+$populateCollabItems = function(array $data, string $prefix) use (&$collaborationItems) {
+    foreach ($data as $key => $desc) {
+        if (!is_string($key) && !is_int($key)) { continue; }
+        if (is_int($key)) {
+            $key = (string) $desc;
+            if ($key === '') { continue; }
+            $label = Lang::t($prefix . '_' . $key, $key);
+            $desc = '';
+        } else {
+            if ($key === '') { continue; }
+            $label = Lang::t($prefix . '_' . $key, $key);
+            $desc = is_string($desc) ? $desc : '';
         }
+        $collaborationItems[] = [
+            'label' => $label,
+            'desc'  => $desc,
+        ];
     }
-}
-foreach ($activityAreas as $item) {
-    $key = is_string($item) ? $item : '';
-    if ($key !== '') {
-        $label = Lang::t('area_' . $key, $key);
-        if (!in_array($label, $collaborationLabels, true)) {
-            $collaborationLabels[] = $label;
-        }
-    }
-}
-foreach ($formatItems as $item) {
-    $key = is_string($item) ? $item : '';
-    if ($key !== '') {
-        $label = Lang::t('format_' . $key, $key);
-        if (!in_array($label, $collaborationLabels, true)) {
-            $collaborationLabels[] = $label;
+};
+
+$populateCollabItems($coopDirections, 'coop');
+$populateCollabItems($activityAreas, 'area');
+$populateCollabItems($formatItems, 'format');
+
+$uniqueCollabItems = [];
+$seenLabels = [];
+foreach ($collaborationItems as $item) {
+    $l = $item['label'];
+    if (!isset($seenLabels[$l])) {
+        $uniqueCollabItems[] = $item;
+        $seenLabels[$l] = count($uniqueCollabItems) - 1;
+    } else {
+        $idx = $seenLabels[$l];
+        if ($uniqueCollabItems[$idx]['desc'] === '' && $item['desc'] !== '') {
+            $uniqueCollabItems[$idx]['desc'] = $item['desc'];
         }
     }
 }
@@ -246,17 +257,32 @@ $renderProjectRichText = static function (string $text): string {
         <?php endif; ?>
 
         <!-- ========== Направления сотрудничества ========== -->
-        <?php if (!empty($collaborationLabels)): ?>
+        <?php if (!empty($uniqueCollabItems)): ?>
             <section class="project-section">
                 <div class="project-section-header">
                     <h2><?= Html::encode(Lang::t('section_directions')) ?></h2>
                 </div>
                 <div class="directions-grid">
-                    <?php foreach ($collaborationLabels as $label): ?>
-                        <div class="direction-chip">
-                            <span class="dot"></span>
-                            <span><?= Html::encode($label) ?></span>
-                        </div>
+                    <?php foreach ($uniqueCollabItems as $idx => $item): ?>
+                        <?php if ($item['desc'] !== ''): ?>
+                            <div class="direction-chip flex-column align-items-stretch" style="padding:0; overflow:hidden;">
+                                <button class="d-flex align-items-center bg-transparent border-0 w-100 text-start m-0" type="button" style="cursor:pointer; padding: 14px 18px;" onclick="this.parentElement.querySelector('.direction-desc-collapse').classList.toggle('d-none'); this.querySelector('.chevron-icon').classList.toggle('bi-chevron-down'); this.querySelector('.chevron-icon').classList.toggle('bi-chevron-up');">
+                                    <span class="dot me-2" style="flex-shrink:0;"></span>
+                                    <span style="flex-grow:1;"><?= Html::encode($item['label']) ?></span>
+                                    <i class="bi bi-chevron-down ms-2 text-muted chevron-icon" style="flex-shrink:0; font-size:0.9rem; transition: transform 0.2s;"></i>
+                                </button>
+                                <div class="direction-desc-collapse d-none px-3 pb-3">
+                                    <div class="border-top pt-2 small text-muted">
+                                        <?= nl2br(Html::encode($item['desc'])) ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="direction-chip">
+                                <span class="dot"></span>
+                                <span><?= Html::encode($item['label']) ?></span>
+                            </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </section>

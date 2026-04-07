@@ -320,24 +320,42 @@ final class AdminController
         $body = $request->getParsedBody() ?? [];
         $formLocale = Lang::get() === 'en' ? 'en' : 'ru';
 
-        $coop = is_array($body['cooperation_directions'] ?? null) ? $body['cooperation_directions'] : [];
-        $areas = is_array($body['activity_areas'] ?? null) ? $body['activity_areas'] : [];
-        $format = is_array($body['interaction_format'] ?? null) ? $body['interaction_format'] : [];
-        $orgType = trim((string) ($body['org_type'] ?? ''));
-        if ($orgType === 'other') {
-            $orgType = trim((string) ($body['org_type_other'] ?? ''));
+        $coopKeys = is_array($body['cooperation_directions'] ?? null) ? $body['cooperation_directions'] : [];
+        $coopDesc = is_array($body['cooperation_directions_desc'] ?? null) ? $body['cooperation_directions_desc'] : [];
+        $coop = [];
+        foreach ($coopKeys as $k) {
+            $coop[$k] = trim((string) ($coopDesc[$k] ?? ''));
         }
         $coopOther = trim((string) ($body['cooperation_directions_other'] ?? ''));
         if ($coopOther !== '') {
-            $coop[] = $coopOther;
+            $coop[$coopOther] = trim((string) ($body['cooperation_directions_other_desc'] ?? ''));
+        }
+
+        $areasKeys = is_array($body['activity_areas'] ?? null) ? $body['activity_areas'] : [];
+        $areasDesc = is_array($body['activity_areas_desc'] ?? null) ? $body['activity_areas_desc'] : [];
+        $areas = [];
+        foreach ($areasKeys as $k) {
+            $areas[$k] = trim((string) ($areasDesc[$k] ?? ''));
         }
         $areasOther = trim((string) ($body['activity_areas_other'] ?? ''));
         if ($areasOther !== '') {
-            $areas[] = $areasOther;
+            $areas[$areasOther] = trim((string) ($body['activity_areas_other_desc'] ?? ''));
+        }
+
+        $formatKeys = is_array($body['interaction_format'] ?? null) ? $body['interaction_format'] : [];
+        $formatDesc = is_array($body['interaction_format_desc'] ?? null) ? $body['interaction_format_desc'] : [];
+        $format = [];
+        foreach ($formatKeys as $k) {
+            $format[$k] = trim((string) ($formatDesc[$k] ?? ''));
         }
         $formatOther = trim((string) ($body['interaction_format_other'] ?? ''));
         if ($formatOther !== '') {
-            $format[] = $formatOther;
+            $format[$formatOther] = trim((string) ($body['interaction_format_other_desc'] ?? ''));
+        }
+
+        $orgType = trim((string) ($body['org_type'] ?? ''));
+        if ($orgType === 'other') {
+            $orgType = trim((string) ($body['org_type_other'] ?? ''));
         }
         $projectsRu = $this->parseProjectsJson((string) ($body['projects_json_ru'] ?? ''));
         $projectsEn = $this->parseProjectsJson((string) ($body['projects_json_en'] ?? ''));
