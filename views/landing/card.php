@@ -203,40 +203,64 @@ $renderProjectRichText = static function (string $text): string {
                 <div class="project-section-header">
                     <h2><?= Html::encode(Lang::t('section_active_projects')) ?></h2>
                 </div>
-                <div class="d-flex flex-column gap-3">
+                <div class="d-flex flex-column gap-4">
                     <?php foreach ($activeProjects as $project): ?>
-                        <div class="active-project-item">
-                            <h3 class="active-project-title"><?= Html::encode($project['name']) ?></h3>
+                        <div class="active-project-item position-relative" style="padding:24px 28px; border:1px solid #eef2f5; border-radius:16px; background:#ffffff; box-shadow:0 4px 12px rgba(0,0,0,0.03); overflow:hidden;">
+                            <div class="position-absolute" style="top:0; left:0; width:4px; height:100%; background:var(--ku-primary, #00B0C7);"></div>
+                            <h3 class="active-project-title mb-3" style="font-size:1.25rem; color:#1a2332; display:flex; align-items:center; gap:8px;">
+                                <i class="bi bi-briefcase text-muted" style="font-size:1.1rem;"></i>
+                                <?= Html::encode($project['name']) ?>
+                            </h3>
+                            
                             <?php if ($project['description'] !== ''): ?>
-                                <div class="active-project-description mb-3"><?= $renderProjectRichText($project['description']) ?></div>
+                                <div class="active-project-description mb-4" style="color:#4a5568; line-height:1.7; font-size:1.05rem;">
+                                    <?= $renderProjectRichText($project['description']) ?>
+                                </div>
                             <?php endif; ?>
+
                             <?php if (!empty($project['images'])): ?>
-                                <div class="project-desc-images active-project-images mb-3">
+                                <div class="project-desc-images active-project-images mb-4" style="gap:12px;">
                                     <?php foreach ($project['images'] as $idx => $src): ?>
-                                        <a href="<?= Html::encode($src) ?>" data-fslightbox="gallery-proj-<?= md5($project['name']) ?>" class="project-desc-img-wrap">
+                                        <a href="<?= Html::encode($src) ?>" data-fslightbox="gallery-proj-<?= md5($project['name']) ?>" class="project-desc-img-wrap" style="height:160px; border-radius:10px;">
                                             <img src="<?= Html::encode($src) ?>" alt="" class="project-desc-img" loading="lazy">
                                         </a>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
+
                             <?php if (!empty($project['goals'])): ?>
-                                <h6 class="mb-2"><?= Html::encode(Lang::t('project_goals')) ?></h6>
-                                <ul class="mb-3">
-                                    <?php foreach ($project['goals'] as $goal): ?>
-                                        <li><?= Html::encode((string) $goal) ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
+                                <div class="mb-4">
+                                    <h6 class="mb-3 text-uppercase" style="font-size:0.8rem; letter-spacing:0.05em; color:#718096;"><i class="bi bi-bullseye me-2"></i><?= Html::encode(Lang::t('project_goals')) ?></h6>
+                                    <div class="goals-list gap-2">
+                                        <?php foreach ($project['goals'] as $goal): ?>
+                                            <div class="goal-row" style="padding:10px 14px;">
+                                                <div class="goal-icon d-flex align-items-center justify-content-center" style="color:var(--ku-primary, #00B0C7);"><i class="bi bi-check-circle-fill" style="font-size:14px;"></i></div>
+                                                <div class="goal-text" style="font-size:0.95rem; color:#4a5568; margin-top:2px;"><?= Html::encode((string) $goal) ?></div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
                             <?php endif; ?>
+
                             <?php if (!empty($project['subtasks'])): ?>
-                                <h6 class="mb-2"><?= Html::encode(Lang::t('project_subtasks')) ?></h6>
-                                <ul class="mb-3">
-                                    <?php foreach ($project['subtasks'] as $subtask): ?>
-                                        <li><?= Html::encode((string) $subtask) ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
+                                <div class="mb-4">
+                                    <h6 class="mb-3 text-uppercase" style="font-size:0.8rem; letter-spacing:0.05em; color:#718096;"><i class="bi bi-list-check me-2"></i><?= Html::encode(Lang::t('project_subtasks')) ?></h6>
+                                    <div class="subtasks-list gap-2">
+                                        <?php foreach ($project['subtasks'] as $index => $subtask): ?>
+                                            <div class="subtask-row" style="padding:10px 14px;">
+                                                <div class="subtask-num" style="width:26px; height:26px; min-width:26px; font-size:0.8rem; background:rgba(0,176,199,0.1); color:var(--ku-primary, #00B0C7);"><?= $index + 1 ?></div>
+                                                <div class="subtask-text" style="font-size:0.95rem; color:#4a5568; margin-top:2px;"><?= Html::encode((string) $subtask) ?></div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
                             <?php endif; ?>
+
                             <?php if ($project['ready'] !== ''): ?>
-                                <p class="mb-0"><?= Html::encode(Lang::t('project_ready')) ?>: <?= Html::encode($project['ready']) ?></p>
+                                <div class="d-inline-flex align-items-center gap-2" style="background:#e0f4f7; color:#0e889c; padding:8px 14px; border-radius:8px; font-size:0.9rem; font-weight:600;">
+                                    <i class="bi bi-stars"></i>
+                                    <span><?= Html::encode(Lang::t('project_ready')) ?>: <?= Html::encode($project['ready']) ?></span>
+                                </div>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
