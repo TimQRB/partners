@@ -15,8 +15,9 @@ $isPublicPartnershipForm = ($path === '/partnerships/create');
 $useAdminShell = $isAdmin || $isPublicPartnershipForm;
 $isProjectDetail = (preg_match('#^/card/\d+#', $requestUri) === 1);
 $isHome = $path === '/';
-/** Публичные страницы не главная: тот же навбар, что на главной, нужна подложка и отступ у main */
-$needsNavbarUnderlay = !$useAdminShell && !$isHome;
+$useHomeNavbar = $isHome || $isProjectDetail;
+/** Публичные страницы не главная: тот же навбар, что на главной, но с белым фоном для карточки */
+$needsNavbarUnderlay = !$useAdminShell && !$useHomeNavbar;
 $bodyClass = $useAdminShell ? 'admin-layout' : ($isProjectDetail ? 'landing-layout project-detail-page' : 'landing-layout');
 $lang = Lang::get();
 parse_str((string) parse_url($requestUri, PHP_URL_QUERY), $langQuery);
@@ -55,12 +56,12 @@ $this->beginPage();
         <div class="landing-navbar-underlay" aria-hidden="true"></div>
     <?php endif; ?>
     <?php
-    $navbarExtra = $useAdminShell ? '' : ($isHome ? 'navbar-home' : 'position-absolute w-100 z-3');
+    $navbarExtra = $useAdminShell ? '' : ($useHomeNavbar ? 'navbar-home' : 'position-absolute w-100 z-3');
     ?>
     <header class="site-navbar <?= $navbarExtra ?>">
         <div class="container-fluid px-3 px-md-5 d-flex justify-content-between align-items-center py-2">
             <a href="/" class="navbar-brand d-flex align-items-center text-decoration-none">
-                <?php if ($isHome): ?>
+                <?php if ($useHomeNavbar): ?>
                     <img src="/uploads/logo_blue.png" alt="KOZYBAYEV UNIVERSITY" class="navbar-brand-logo" height="50"
                         onerror="this.style.display='none'">
                 <?php else: ?>
@@ -68,7 +69,7 @@ $this->beginPage();
                         onerror="this.style.display='none'">
                 <?php endif; ?>
             </a>
-            <?php if ($isHome || $isPublicPartnershipForm): ?>
+            <?php if ($useHomeNavbar || $isPublicPartnershipForm): ?>
                 <div class="lang-switch">
                     <a href="<?= Html::encode($urlLangRu) ?>" class="lang-btn<?= $lang === 'ru' ? ' active' : '' ?>">RU</a>
                     <a href="<?= Html::encode($urlLangEn) ?>" class="lang-btn<?= $lang === 'en' ? ' active' : '' ?>">EN</a>
