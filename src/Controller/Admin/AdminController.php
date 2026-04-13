@@ -202,6 +202,38 @@ final class AdminController
         return $this->redirect('admin/partnerships');
     }
 
+    public function partnershipPriority(ServerRequestInterface $request, #[RouteArgument('id')] string $id): ResponseInterface
+    {
+        $body = $request->getParsedBody() ?? [];
+        $priorityRaw = $body['priority'] ?? 0;
+        $priority = filter_var($priorityRaw, FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+        if (!is_int($priority)) {
+            $priority = 0;
+        }
+        if ($priority < 0) {
+            $priority = 0;
+        }
+        if ($priority > 100000) {
+            $priority = 100000;
+        }
+
+        $this->db->createCommand()->update(
+            '{{%partnership}}',
+            [
+                'priority' => $priority,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            ['id' => $id],
+        )->execute();
+
+        $isAjax = strtolower($request->getHeaderLine('X-Requested-With')) === 'xmlhttprequest';
+        if ($isAjax) {
+            return $this->responseFactory->createResponse(Status::NO_CONTENT);
+        }
+
+        return $this->redirect('admin/partnerships');
+    }
+
     /**
      * @param array<string, mixed> $data
      * @return array<string, mixed>

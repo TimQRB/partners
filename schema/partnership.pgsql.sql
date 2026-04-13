@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS tbl_partnership (
   materials TEXT,
   file_path VARCHAR(500) DEFAULT NULL,
   description_images TEXT,
+  priority INTEGER NOT NULL DEFAULT 0,
   data_consent SMALLINT NOT NULL DEFAULT 0,
   published SMALLINT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL,

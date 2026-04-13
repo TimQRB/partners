@@ -38,6 +38,7 @@ return [
         Route::get('/partnerships/{id:\d+}/edit')->action([AdminController::class, 'partnershipEdit'])->name('admin/partnerships/edit'),
         Route::post('/partnerships/{id:\d+}/edit')->action([AdminController::class, 'partnershipEditPost'])->name('admin/partnerships/edit-post'),
         Route::post('/partnerships/{id:\d+}/approve')->action([AdminController::class, 'partnershipApprove'])->name('admin/partnerships/approve'),
+        Route::post('/partnerships/{id:\d+}/priority')->action([AdminController::class, 'partnershipPriority'])->name('admin/partnerships/priority'),
         Route::post('/partnerships/{id:\d+}/delete')->action([AdminController::class, 'partnershipDelete'])->name('admin/partnerships/delete'),
     ),
 ];

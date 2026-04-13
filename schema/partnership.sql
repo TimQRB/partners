@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `tbl_partnership` (
   `materials` text,
   `file_path` varchar(500) DEFAULT NULL,
   `description_images` text,
+  `priority` int(11) NOT NULL DEFAULT 0,
   `data_consent` tinyint(1) NOT NULL DEFAULT 0,
   `published` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL,
@@ -72,3 +73,4 @@ VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `goals_en` TEXT NULL AFTER `goals`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `goals_kz` TEXT NULL AFTER `goals_en`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `description_images` TEXT NULL AFTER `file_path`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `priority` INT(11) NOT NULL DEFAULT 0 AFTER `description_images`;
