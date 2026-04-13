@@ -23,7 +23,7 @@ putenv('APP_C3=false');
 $_ENV['APP_C3'] = 'false';
 
 // Handle language switcher via cookie
-if (isset($_GET['lang']) && in_array($_GET['lang'], ['ru', 'en'], true)) {
+if (isset($_GET['lang']) && in_array($_GET['lang'], ['ru', 'en', 'kz'], true)) {
     setcookie('app_lang', $_GET['lang'], time() + 86400 * 30, '/');
     $_COOKIE['app_lang'] = $_GET['lang']; // populate immediately
 }

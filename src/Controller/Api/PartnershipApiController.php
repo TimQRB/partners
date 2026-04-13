@@ -67,8 +67,10 @@ final class PartnershipApiController
             'id' => (int) ($row['id'] ?? 0),
             'org_name' => (string) ($row['org_name'] ?? ''),
             'org_name_en' => (string) ($row['org_name_en'] ?? ''),
+            'org_name_kz' => (string) ($row['org_name_kz'] ?? ''),
             'description' => (string) ($row['description'] ?? ''),
             'description_en' => (string) ($row['description_en'] ?? ''),
+            'description_kz' => (string) ($row['description_kz'] ?? ''),
             'created_at' => isset($row['created_at']) ? (string) $row['created_at'] : '',
             'image_url' => $base !== '' && $basename !== ''
                 ? $base . '/serve/partnership?f=' . rawurlencode($basename)
@@ -92,8 +94,10 @@ final class PartnershipApiController
                 'interaction_format' => (string) ($row['interaction_format'] ?? ''),
                 'subtasks' => Partnership::decodeJson(isset($row['subtasks']) ? (string) $row['subtasks'] : null),
                 'subtasks_en' => Partnership::decodeJson(isset($row['subtasks_en']) ? (string) $row['subtasks_en'] : null),
+                'subtasks_kz' => Partnership::decodeJson(isset($row['subtasks_kz']) ? (string) $row['subtasks_kz'] : null),
                 'goals' => Partnership::decodeJson(isset($row['goals']) ? (string) $row['goals'] : null),
                 'goals_en' => Partnership::decodeJson(isset($row['goals_en']) ? (string) $row['goals_en'] : null),
+                'goals_kz' => Partnership::decodeJson(isset($row['goals_kz']) ? (string) $row['goals_kz'] : null),
                 'events' => Partnership::decodeJson(isset($row['events']) ? (string) $row['events'] : null),
                 'materials' => Partnership::decodeJson(isset($row['materials']) ? (string) $row['materials'] : null),
                 'description_images' => Partnership::decodeJson(isset($row['description_images']) ? (string) $row['description_images'] : null),

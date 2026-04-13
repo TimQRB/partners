@@ -18,7 +18,7 @@ final class Lang
 
     public static function init(?string $lang = null): void
     {
-        if ($lang !== null && in_array($lang, ['ru', 'en'], true)) {
+        if ($lang !== null && in_array($lang, ['ru', 'en', 'kz'], true)) {
             self::$lang = $lang;
         }
 
@@ -52,6 +52,9 @@ final class Lang
         if (self::$lang === 'en') {
             return (string) ($row[$field . '_en'] ?? '');
         }
+        if (self::$lang === 'kz') {
+            return (string) ($row[$field . '_kz'] ?? '');
+        }
 
         return (string) ($row[$field] ?? '');
     }
@@ -65,6 +68,9 @@ final class Lang
     {
         if (self::$lang === 'en') {
             return Partnership::decodeJson(isset($row[$field . '_en']) ? (string) $row[$field . '_en'] : null);
+        }
+        if (self::$lang === 'kz') {
+            return Partnership::decodeJson(isset($row[$field . '_kz']) ? (string) $row[$field . '_kz'] : null);
         }
 
         return Partnership::decodeJson(isset($row[$field]) ? (string) $row[$field] : null);

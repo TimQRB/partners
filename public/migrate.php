@@ -4,9 +4,13 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $commands = [
     "ALTER TABLE tbl_partnership ADD COLUMN org_name_en VARCHAR(255) DEFAULT '' AFTER org_name",
+    "ALTER TABLE tbl_partnership ADD COLUMN org_name_kz VARCHAR(255) DEFAULT '' AFTER org_name_en",
     "ALTER TABLE tbl_partnership ADD COLUMN description_en TEXT NULL AFTER description",
+    "ALTER TABLE tbl_partnership ADD COLUMN description_kz TEXT NULL AFTER description_en",
     "ALTER TABLE tbl_partnership ADD COLUMN subtasks_en TEXT NULL AFTER subtasks",
+    "ALTER TABLE tbl_partnership ADD COLUMN subtasks_kz TEXT NULL AFTER subtasks_en",
     "ALTER TABLE tbl_partnership ADD COLUMN goals_en TEXT NULL AFTER goals",
+    "ALTER TABLE tbl_partnership ADD COLUMN goals_kz TEXT NULL AFTER goals_en",
     "ALTER TABLE tbl_partnership ADD COLUMN description_images TEXT NULL AFTER file_path",
 ];
 

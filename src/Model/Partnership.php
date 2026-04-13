@@ -22,6 +22,7 @@ final class Partnership
                 'or',
                 ['like', 'org_name', $search],
                 ['like', 'org_name_en', $search],
+                ['like', 'org_name_kz', $search],
             ]);
         }
         $rows = $q->all();

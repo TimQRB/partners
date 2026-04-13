@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `tbl_partnership` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `org_name` varchar(255) NOT NULL DEFAULT '',
   `org_name_en` varchar(255) DEFAULT '',
+  `org_name_kz` varchar(255) DEFAULT '',
   `org_type` varchar(50) NOT NULL DEFAULT '',
   `country` varchar(100) NOT NULL DEFAULT '',
   `city` varchar(100) NOT NULL DEFAULT '',
@@ -21,12 +22,15 @@ CREATE TABLE IF NOT EXISTS `tbl_partnership` (
   `cooperation_directions` text,
   `description` text,
   `description_en` text,
+  `description_kz` text,
   `activity_areas` text,
   `interaction_format` text,
   `subtasks` text,
   `subtasks_en` text,
+  `subtasks_kz` text,
   `goals` text,
   `goals_en` text,
+  `goals_kz` text,
   `events` text,
   `materials` text,
   `file_path` varchar(500) DEFAULT NULL,
@@ -60,7 +64,11 @@ VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
 -- Выполнить один раз, если таблица уже создана без них:
 -- ============================================================
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `org_name_en` VARCHAR(255) DEFAULT '' AFTER `org_name`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `org_name_kz` VARCHAR(255) DEFAULT '' AFTER `org_name_en`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `description_en` TEXT NULL AFTER `description`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `description_kz` TEXT NULL AFTER `description_en`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `subtasks_en` TEXT NULL AFTER `subtasks`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `subtasks_kz` TEXT NULL AFTER `subtasks_en`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `goals_en` TEXT NULL AFTER `goals`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `goals_kz` TEXT NULL AFTER `goals_en`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `description_images` TEXT NULL AFTER `file_path`;
