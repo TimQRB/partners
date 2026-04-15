@@ -12,7 +12,11 @@ CREATE TABLE IF NOT EXISTS `tbl_partnership` (
   `org_name_kz` varchar(255) DEFAULT '',
   `org_type` varchar(50) NOT NULL DEFAULT '',
   `country` varchar(100) NOT NULL DEFAULT '',
+  `country_en` varchar(100) DEFAULT '',
+  `country_kz` varchar(100) DEFAULT '',
   `city` varchar(100) NOT NULL DEFAULT '',
+  `city_en` varchar(100) DEFAULT '',
+  `city_kz` varchar(100) DEFAULT '',
   `website` varchar(255) DEFAULT '',
   `contact_name` varchar(255) NOT NULL DEFAULT '',
   `contact_position` varchar(255) DEFAULT '',
@@ -74,3 +78,7 @@ VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `goals_kz` TEXT NULL AFTER `goals_en`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `description_images` TEXT NULL AFTER `file_path`;
 -- ALTER TABLE `tbl_partnership` ADD COLUMN `priority` INT(11) NOT NULL DEFAULT 0 AFTER `description_images`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `country_en` VARCHAR(100) DEFAULT '' AFTER `country`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `country_kz` VARCHAR(100) DEFAULT '' AFTER `country_en`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `city_en` VARCHAR(100) DEFAULT '' AFTER `city`;
+-- ALTER TABLE `tbl_partnership` ADD COLUMN `city_kz` VARCHAR(100) DEFAULT '' AFTER `city_en`;

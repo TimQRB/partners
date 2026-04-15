@@ -82,7 +82,11 @@ final class PartnershipApiController
             $out += [
                 'org_type' => (string) ($row['org_type'] ?? ''),
                 'country' => (string) ($row['country'] ?? ''),
+                'country_en' => (string) ($row['country_en'] ?? ''),
+                'country_kz' => (string) ($row['country_kz'] ?? ''),
                 'city' => (string) ($row['city'] ?? ''),
+                'city_en' => (string) ($row['city_en'] ?? ''),
+                'city_kz' => (string) ($row['city_kz'] ?? ''),
                 'website' => (string) ($row['website'] ?? ''),
                 'contact_name' => (string) ($row['contact_name'] ?? ''),
                 'contact_position' => (string) ($row['contact_position'] ?? ''),

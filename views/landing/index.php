@@ -69,7 +69,11 @@ $searchNormalize = static function (string $s): string {
                     (string) ($card['description_en'] ?? ''),
                     (string) ($card['description_kz'] ?? ''),
                     (string) ($card['country'] ?? ''),
+                    (string) ($card['country_en'] ?? ''),
+                    (string) ($card['country_kz'] ?? ''),
                     (string) ($card['city'] ?? ''),
+                    (string) ($card['city_en'] ?? ''),
+                    (string) ($card['city_kz'] ?? ''),
                 ], static fn($v) => $v !== '')));
                 ?>
                 <?php

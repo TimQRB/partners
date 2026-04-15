@@ -396,18 +396,6 @@ final class AdminController
         $projectsRu = $this->parseProjectsJson((string) ($body['projects_json_ru'] ?? ''));
         $projectsEn = $this->parseProjectsJson((string) ($body['projects_json_en'] ?? ''));
         $projectsKz = $this->parseProjectsJson((string) ($body['projects_json_kz'] ?? ''));
-        if ($projectsRu === [] && $projectsEn !== []) {
-            $projectsRu = $projectsEn;
-        }
-        if ($projectsRu === [] && $projectsKz !== []) {
-            $projectsRu = $projectsKz;
-        }
-        if ($projectsEn === [] && $projectsRu !== []) {
-            $projectsEn = $projectsRu;
-        }
-        if ($projectsKz === [] && $projectsRu !== []) {
-            $projectsKz = $projectsRu;
-        }
 
         $eventsRaw = trim((string) ($body['events'] ?? ''));
         $events = [];
@@ -422,12 +410,22 @@ final class AdminController
         $descriptionRu = trim((string) ($body['description_ru'] ?? $body['description'] ?? ''));
         $descriptionEn = trim((string) ($body['description_en'] ?? ''));
         $descriptionKz = trim((string) ($body['description_kz'] ?? ''));
+        $countryRu = trim((string) ($body['country_ru'] ?? $body['country'] ?? ''));
+        $countryEn = trim((string) ($body['country_en'] ?? ''));
+        $countryKz = trim((string) ($body['country_kz'] ?? ''));
+        $cityRu = trim((string) ($body['city_ru'] ?? $body['city'] ?? ''));
+        $cityEn = trim((string) ($body['city_en'] ?? ''));
+        $cityKz = trim((string) ($body['city_kz'] ?? ''));
 
         $emptyJson = Partnership::encodeJson([]);
         $base = [
             'org_type' => $orgType,
-            'country' => trim((string) ($body['country'] ?? '')),
-            'city' => trim((string) ($body['city'] ?? '')),
+            'country' => $countryRu,
+            'country_en' => $countryEn,
+            'country_kz' => $countryKz,
+            'city' => $cityRu,
+            'city_en' => $cityEn,
+            'city_kz' => $cityKz,
             'website' => trim((string) ($body['website'] ?? '')),
             'contact_name' => trim((string) ($body['contact_name'] ?? '')),
             'contact_position' => trim((string) ($body['contact_position'] ?? '')),
@@ -534,10 +532,18 @@ final class AdminController
         if ($data['org_type'] === '') {
             $errors[] = Lang::t('admin_err_org_type');
         }
-        if ($data['country'] === '') {
+        if (
+            trim((string) ($data['country'] ?? '')) === ''
+            && trim((string) ($data['country_en'] ?? '')) === ''
+            && trim((string) ($data['country_kz'] ?? '')) === ''
+        ) {
             $errors[] = Lang::t('admin_err_country');
         }
-        if ($data['city'] === '') {
+        if (
+            trim((string) ($data['city'] ?? '')) === ''
+            && trim((string) ($data['city_en'] ?? '')) === ''
+            && trim((string) ($data['city_kz'] ?? '')) === ''
+        ) {
             $errors[] = Lang::t('admin_err_city');
         }
         if ($data['contact_name'] === '') {

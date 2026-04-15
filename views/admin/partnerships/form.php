@@ -30,6 +30,12 @@ $displayOrgNameKz = $model ? (string) ($model['org_name_kz'] ?? '') : '';
 $displayDescriptionRu = $model ? (string) ($model['description'] ?? '') : '';
 $displayDescriptionEn = $model ? (string) ($model['description_en'] ?? '') : '';
 $displayDescriptionKz = $model ? (string) ($model['description_kz'] ?? '') : '';
+$displayCountryRu = $model ? (string) ($model['country'] ?? '') : '';
+$displayCountryEn = $model ? (string) ($model['country_en'] ?? '') : '';
+$displayCountryKz = $model ? (string) ($model['country_kz'] ?? '') : '';
+$displayCityRu = $model ? (string) ($model['city'] ?? '') : '';
+$displayCityEn = $model ? (string) ($model['city_en'] ?? '') : '';
+$displayCityKz = $model ? (string) ($model['city_kz'] ?? '') : '';
 $subtasksForLocale = $model
     ? Partnership::decodeJson(
         $formLocale === 'en'
@@ -195,13 +201,29 @@ $adminFormJsI18n = json_encode([
                     <div class="col-md-6">
                         <div class="admin-form-field">
                             <label class="form-label"><?= Html::encode(Lang::t('admin_country')) ?> <span class="text-danger">*</span></label>
-                            <input type="text" name="country" class="form-control" value="<?= Html::encode($model['country'] ?? '') ?>" required>
+                            <div class="lang-field lang-field-ru<?= $formLocale === 'ru' ? '' : ' d-none' ?>">
+                                <input type="text" name="country_ru" class="form-control" value="<?= Html::encode($displayCountryRu) ?>">
+                            </div>
+                            <div class="lang-field lang-field-en<?= $formLocale === 'en' ? '' : ' d-none' ?>">
+                                <input type="text" name="country_en" class="form-control" value="<?= Html::encode($displayCountryEn) ?>">
+                            </div>
+                            <div class="lang-field lang-field-kz<?= $formLocale === 'kz' ? '' : ' d-none' ?>">
+                                <input type="text" name="country_kz" class="form-control" value="<?= Html::encode($displayCountryKz) ?>">
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="admin-form-field">
                             <label class="form-label"><?= Html::encode(Lang::t('admin_city')) ?> <span class="text-danger">*</span></label>
-                            <input type="text" name="city" class="form-control" value="<?= Html::encode($model['city'] ?? '') ?>" required>
+                            <div class="lang-field lang-field-ru<?= $formLocale === 'ru' ? '' : ' d-none' ?>">
+                                <input type="text" name="city_ru" class="form-control" value="<?= Html::encode($displayCityRu) ?>">
+                            </div>
+                            <div class="lang-field lang-field-en<?= $formLocale === 'en' ? '' : ' d-none' ?>">
+                                <input type="text" name="city_en" class="form-control" value="<?= Html::encode($displayCityEn) ?>">
+                            </div>
+                            <div class="lang-field lang-field-kz<?= $formLocale === 'kz' ? '' : ' d-none' ?>">
+                                <input type="text" name="city_kz" class="form-control" value="<?= Html::encode($displayCityKz) ?>">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -400,16 +422,6 @@ $adminFormJsI18n = json_encode([
                 $projectsRuSource = $model ? Partnership::decodeJson($model['subtasks'] ?? null) : [];
                 $projectsEnSource = $model ? Partnership::decodeJson($model['subtasks_en'] ?? null) : [];
                 $projectsKzSource = $model ? Partnership::decodeJson($model['subtasks_kz'] ?? null) : [];
-                if ($projectsRuSource === [] && $projectsEnSource !== []) {
-                    $projectsRuSource = $projectsEnSource;
-                } elseif ($projectsEnSource === [] && $projectsRuSource !== []) {
-                    $projectsEnSource = $projectsRuSource;
-                }
-                if ($projectsKzSource === [] && $projectsRuSource !== []) {
-                    $projectsKzSource = $projectsRuSource;
-                } elseif ($projectsRuSource === [] && $projectsKzSource !== []) {
-                    $projectsRuSource = $projectsKzSource;
-                }
                 if (is_array($projectsRuSource)) {
                     foreach ($projectsRuSource as $project) {
                         if (!is_array($project)) {
@@ -852,9 +864,6 @@ document.querySelectorAll('.form-lang-tab').forEach(function(tabBtn) {
             '</div>' +
             '<div class="mb-2">' +
                 '<label class="form-label small mb-1">' + escapeAttr(i18n.project_description) + '</label>' +
-                '<div class="d-flex gap-1 mb-1">' +
-                    '<button type="button" class="btn btn-sm btn-outline-secondary project-bold-btn" title="Bold"><i class="bi bi-type-bold"></i></button>' +
-                '</div>' +
                 '<div class="project-description-editor form-control" contenteditable="true" style="min-height:96px;"></div>' +
                 '<textarea class="d-none project-description"></textarea>' +
             '</div>' +
@@ -940,18 +949,10 @@ document.querySelectorAll('.form-lang-tab').forEach(function(tabBtn) {
         var desc = wrap.querySelector('.project-description');
         var editor = wrap.querySelector('.project-description-editor');
         if (editor) {
-            editor.innerHTML = item.description || '';
-        }
-        var boldBtn = wrap.querySelector('.project-bold-btn');
-        if (boldBtn && editor) {
-            boldBtn.addEventListener('mousedown', function(e) { e.preventDefault(); });
-            boldBtn.addEventListener('click', function() {
-                editor.focus();
-                try { document.execCommand('bold'); } catch (err) {}
-            });
+            editor.textContent = item.description || '';
         }
         if (editor && desc) {
-            var syncDesc = function() { desc.value = editor.innerHTML; };
+            var syncDesc = function() { desc.value = editor.textContent || ''; };
             editor.addEventListener('input', syncDesc);
             syncDesc();
         }
@@ -994,6 +995,19 @@ document.querySelectorAll('.form-lang-tab').forEach(function(tabBtn) {
             return;
         }
         var loc = (locale === 'en' || locale === 'kz') ? locale : 'ru';
+        function decodeBase64Utf8(b64) {
+            try {
+                var binary = atob(b64);
+                var bytes = new Uint8Array(binary.length);
+                for (var i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                if (typeof TextDecoder !== 'undefined') {
+                    return new TextDecoder('utf-8').decode(bytes);
+                }
+            } catch (e) {}
+            return '';
+        }
         function parseProjectsRaw(raw) {
             if (!raw || typeof raw !== 'string') {
                 return [];
@@ -1009,7 +1023,7 @@ document.querySelectorAll('.form-lang-tab').forEach(function(tabBtn) {
             var initial = parseProjectsRaw(hidden.value || '[]');
             if ((!Array.isArray(initial) || initial.length === 0) && hidden.dataset && hidden.dataset.jsonB64) {
                 try {
-                    var decoded = atob(hidden.dataset.jsonB64);
+                    var decoded = decodeBase64Utf8(hidden.dataset.jsonB64);
                     var fromB64 = parseProjectsRaw(decoded);
                     if (Array.isArray(fromB64) && fromB64.length > 0) {
                         initial = fromB64;

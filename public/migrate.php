@@ -13,6 +13,10 @@ $commands = [
     "ALTER TABLE tbl_partnership ADD COLUMN goals_kz TEXT NULL AFTER goals_en",
     "ALTER TABLE tbl_partnership ADD COLUMN description_images TEXT NULL AFTER file_path",
     "ALTER TABLE tbl_partnership ADD COLUMN priority INT(11) NOT NULL DEFAULT 0 AFTER description_images",
+    "ALTER TABLE tbl_partnership ADD COLUMN country_en VARCHAR(100) DEFAULT '' AFTER country",
+    "ALTER TABLE tbl_partnership ADD COLUMN country_kz VARCHAR(100) DEFAULT '' AFTER country_en",
+    "ALTER TABLE tbl_partnership ADD COLUMN city_en VARCHAR(100) DEFAULT '' AFTER city",
+    "ALTER TABLE tbl_partnership ADD COLUMN city_kz VARCHAR(100) DEFAULT '' AFTER city_en",
 ];
 
 foreach ($commands as $sql) {
