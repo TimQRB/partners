@@ -15,12 +15,12 @@ use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 $root = dirname(__DIR__);
 
 // Force dev environment before bootstrapping so Config uses it
-putenv('APP_ENV=dev');
-$_ENV['APP_ENV'] = 'dev';
-putenv('APP_DEBUG=1');
-$_ENV['APP_DEBUG'] = '1';
-putenv('APP_C3=false');
-$_ENV['APP_C3'] = 'false';
+// putenv('APP_ENV=dev');
+// $_ENV['APP_ENV'] = 'dev';
+// putenv('APP_DEBUG=1');
+// $_ENV['APP_DEBUG'] = '1';
+// putenv('APP_C3=false');
+// $_ENV['APP_C3'] = 'false';
 
 // Handle language switcher via cookie
 if (isset($_GET['lang']) && in_array($_GET['lang'], ['ru', 'en', 'kz'], true)) {
