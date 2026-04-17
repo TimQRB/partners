@@ -1,105 +1,104 @@
 # Лендинг «Международные партнёры»
 
-Главная с карточками партнёрств, страница карточки, админка (логин: `admin`, пароль: `password`).
+Yii 3 приложение для витрины партнёрств: публичная часть (главная и карточка), формы подачи, админка и API.
 
----
+## Быстрый старт
 
-## Клонировал проект — что делать
-
-Зайди в папку с проектом (например `landing_sku` — как у тебя названа папка после клона).
-
-| Шаг | Где выполнять | Команда |
-|-----|----------------|---------|
-| 1. Клонировать | Любая папка (например `Desktop`) | `git clone https://github.com/TimQRB/partners.git` |
-| 2. Зайти в проект | — | `cd partners` или `cd landing_sku` (как назвали папку) |
-| 3. Поставить зависимости PHP | Внутри папки проекта | `composer install` |
-| 4. Запустить сайт (Docker) | Внутри папки проекта | `docker compose -f docker/compose.yml -f docker/dev/compose.yml up -d --build` |
-
-После этого открыть в браузере: **http://localhost**. Админка: http://localhost/admin/login (`admin` / `password`).
-
-Остановить: в папке проекта выполнить  
-`docker compose -f docker/compose.yml -f docker/dev/compose.yml down`
-
----
-
-## Запуск (если уже есть клон)
+### 1) Клонирование и установка зависимостей
 
 ```bash
-cd landing_sku
+git clone https://github.com/TimQRB/partners.git
+cd partners
 composer install
+```
+
+### 2) Запуск в Docker
+
+```bash
 docker compose -f docker/compose.yml -f docker/dev/compose.yml up -d --build
 ```
 
-Сайт: **http://localhost**.
+Открыть в браузере:
 
----
+- Сайт: `http://localhost`
+- Вход в админку: `http://localhost/admin/login`
+- Логин/пароль по умолчанию: `admin` / `password`
 
-## Как запушить изменения (в т.ч. README)
-
-Выполнять из папки проекта:
+Остановка контейнеров:
 
 ```bash
-cd landing_sku
-git add .
-git commit -m "описание изменений"
-git push origin main
+docker compose -f docker/compose.yml -f docker/dev/compose.yml down
 ```
 
-Первый раз, если ещё не настроен remote:  
-`git remote add origin https://github.com/TimQRB/partners.git`  
-затем `git push -u origin main`.
+## Технологии
 
----
+- `PHP 8.2+`
+- `Yii 3`
+- `MySQL 8.4` (в Docker)
+- `FrankenPHP + Caddy` (в контейнере приложения)
 
-## Куда что писать
+## Полезные команды
 
-| Нужно сделать | Куда писать |
-|---------------|-------------|
-| **Новая страница на сайте** | Контроллер в `src/Controller/` (или метод в `LandingController`) → маршрут в `config/common/routes.php` → шаблон в `views/landing/` или `views/` |
-| **Новая страница в админке** | Метод в `src/Controller/Admin/AdminController.php` → маршрут в `config/common/routes.php` внутри группы `Group::create('/admin')` → шаблон в `views/admin/` |
-| **Новая таблица или поле в БД** | Docker/MySQL: `schema/partnership.sql`. PostgreSQL-схема: `schema/partnership.pgsql.sql` (legacy). Данные — в `src/Model/` |
-| **Логика работы с БД** | `src/Model/Partnership.php` или новый класс в `src/Model/` |
-| **Вход/выход, сессия** | `src/Service/AuthService.php` |
-| **Защита раздела (только для авторизованных)** | В `config/common/routes.php` добавить маршрут в группу с `->middleware(AuthMiddleware::class)` |
-| **Общий вид страниц (шапка, футер)** | `views/layout/main.php` |
-| **Стили сайта** | `public/css/design-system.css`, `public/css/landing.css` |
-| **Стили админки/формы** | `public/css/admin.css`, `public/css/admin-form.css` |
-| **Логотипы в шапке** | Файлы в `public/uploads/`, вывод через маршрут `/logo/{name}` (`LogoController`) |
-| **Загрузка файлов (картинки партнёрств и т.п.)** | Обработка в `AdminController`, сохранение в `public/uploads/`; раздача через `ServeController` или статикой |
-| **Параметры приложения, БД** | `config/common/params.php` |
-| **Подключение зависимостей (DI)** | `config/common/di/` |
+```bash
+# Запуск тестов
+composer test
 
----
-
-## Структура (кратко)
-
+# Локальный запуск встроенного сервера (без Docker, если окружение подготовлено)
+composer serve
 ```
-landing_sku/
-├── config/common/routes.php   # Все маршруты
-├── config/common/params.php   # БД, layout, параметры view
-├── schema/partnership.sql        # Схема для MySQL (Docker)
-├── schema/partnership.pgsql.sql  # Легаси Postgres
-├── public/                    # index.php, css/, js/, uploads/
+
+## Где что менять
+
+| Задача | Файлы/папки |
+|---|---|
+| Публичные страницы | `src/Controller/LandingController.php`, шаблоны `views/landing/` |
+| Админка | `src/Controller/Admin/AdminController.php`, шаблоны `views/admin/` |
+| Роутинг | `config/common/routes.php` |
+| Работа с БД | `src/Model/` |
+| Авторизация | `src/Service/AuthService.php`, `src/Middleware/AuthMiddleware.php` |
+| Параметры и DI | `config/common/params.php`, `config/common/di/` |
+| Стили | `public/css/` |
+| SQL-схемы | `schema/partnership.sql`, `schema/partnership.pgsql.sql` (legacy) |
+
+## Ключевые маршруты
+
+### Публичные
+
+- `GET /` — главная
+- `GET /card/{id}` — карточка партнёрства
+- `GET /partnerships/create` — форма подачи
+- `POST /partnerships/create` — отправка формы
+- `GET /logo/{name}` — выдача логотипа
+
+### Админка
+
+- `GET /admin/login` — вход
+- `GET /admin/dashboard` — дашборд (требует авторизацию)
+- `GET /admin/partnerships` — список заявок/партнёрств
+- `GET/POST /admin/partnerships/create` — создание
+- `GET/POST /admin/partnerships/{id}/edit` — редактирование
+- `POST /admin/partnerships/{id}/approve` — подтверждение
+- `POST /admin/partnerships/{id}/priority` — изменение приоритета
+- `POST /admin/partnerships/{id}/delete` — удаление
+
+### API
+
+- `GET /api/partnerships` — список
+- `GET /api/partnerships/{id}` — просмотр
+
+## Структура проекта
+
+```text
+partners/
+├── config/common/routes.php      # Роуты приложения
+├── config/common/params.php      # Параметры приложения
+├── docker/                       # Docker-конфигурация
+├── public/                       # Веб-корень: css/js/uploads
+├── schema/                       # SQL-схемы
 ├── src/
-│   ├── Controller/            # Страницы: Landing, Admin, Logo, Serve
-│   ├── Model/                 # Partnership, User — работа с БД
-│   ├── Service/AuthService.php
-│   └── Middleware/AuthMiddleware.php
-└── views/
-    ├── layout/main.php        # Общий шаблон
-    ├── landing/               # Главная, карточка
-    └── admin/                 # Логин, список блоков, форма
+│   ├── Controller/
+│   ├── Middleware/
+│   ├── Model/
+│   └── Service/
+└── views/                        # Шаблоны страниц
 ```
-
----
-
-## Маршруты
-
-| URL | Описание |
-|-----|----------|
-| `/` | Главная |
-| `/card/{id}` | Карточка партнёрства |
-| `/admin/login` | Вход |
-| `/admin/partnerships` | Список блоков (нужен вход) |
-| `/admin/partnerships/create` | Создать блок |
-| `/admin/partnerships/{id}/edit` | Редактировать блок |

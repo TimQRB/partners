@@ -1043,6 +1043,8 @@ body.admin-layout .landing-footer,
 
 .admin-blocks-table {
     margin-bottom: 0;
+    table-layout: fixed;
+    width: 100%;
 }
 
 .admin-blocks-table thead tr {
@@ -1078,6 +1080,21 @@ body.admin-layout .landing-footer,
 
 .admin-blocks-name {
     font-weight: 500;
+    max-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.admin-blocks-priority-col {
+    width: 170px;
+}
+
+.admin-blocks-priority-cell {
+    min-width: 170px;
+}
+
+.admin-blocks-priority-cell input[type="number"] {
+    min-width: 72px;
 }
 
 .admin-blocks-date {

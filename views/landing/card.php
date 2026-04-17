@@ -22,6 +22,8 @@ $header = [
     'description' => Lang::field($card, 'description'),
     'image' => $card['file_path'] ?? null,
 ];
+$localizedCountry = Lang::field($card, 'country');
+$localizedCity = Lang::field($card, 'city');
 
 // --- Направления (объединяем cooperation_directions + activity_areas + interaction_format) ---
 $coopDirections = Partnership::decodeJson($card['cooperation_directions'] ?? null);
@@ -167,14 +169,14 @@ $renderProjectRichText = static function (string $text): string {
                 </div>
                 <div class="project-card-header-text">
                     <h1 class="project-card-title"><?= Html::encode($header['title'] ?: '—') ?></h1>
-                    <?php if ($orgTypeLabel !== '' || !empty($card['country']) || !empty($card['city'])): ?>
+                    <?php if ($orgTypeLabel !== '' || $localizedCountry !== '' || $localizedCity !== ''): ?>
                         <p class="project-card-meta">
                             <?php if ($orgTypeLabel !== ''): ?>
                                 <span><?= Html::encode($orgTypeLabel) ?></span>
                             <?php endif; ?>
-                            <?php if (!empty($card['country']) || !empty($card['city'])): ?>
+                            <?php if ($localizedCountry !== '' || $localizedCity !== ''): ?>
                                 <?php if ($orgTypeLabel !== ''): ?> · <?php endif; ?>
-                                <span><?= Html::encode(trim(($card['country'] ?? '') . ', ' . ($card['city'] ?? ''), ', ')) ?></span>
+                                <span><?= Html::encode(trim($localizedCountry . ', ' . $localizedCity, ', ')) ?></span>
                             <?php endif; ?>
                         </p>
                     <?php endif; ?>

@@ -64,10 +64,16 @@ $searchNormalize = static function (string $s): string {
                 $searchBlob = $searchNormalize(implode(' ', array_filter([
                     (string) ($card['org_name'] ?? ''),
                     (string) ($card['org_name_en'] ?? ''),
+                    (string) ($card['org_name_kz'] ?? ''),
                     (string) ($card['description'] ?? ''),
                     (string) ($card['description_en'] ?? ''),
+                    (string) ($card['description_kz'] ?? ''),
                     (string) ($card['country'] ?? ''),
+                    (string) ($card['country_en'] ?? ''),
+                    (string) ($card['country_kz'] ?? ''),
                     (string) ($card['city'] ?? ''),
+                    (string) ($card['city_en'] ?? ''),
+                    (string) ($card['city_kz'] ?? ''),
                 ], static fn($v) => $v !== '')));
                 ?>
                 <?php

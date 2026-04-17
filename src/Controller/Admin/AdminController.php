@@ -202,6 +202,38 @@ final class AdminController
         return $this->redirect('admin/partnerships');
     }
 
+    public function partnershipPriority(ServerRequestInterface $request, #[RouteArgument('id')] string $id): ResponseInterface
+    {
+        $body = $request->getParsedBody() ?? [];
+        $priorityRaw = $body['priority'] ?? 0;
+        $priority = filter_var($priorityRaw, FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+        if (!is_int($priority)) {
+            $priority = 0;
+        }
+        if ($priority < 0) {
+            $priority = 0;
+        }
+        if ($priority > 100000) {
+            $priority = 100000;
+        }
+
+        $this->db->createCommand()->update(
+            '{{%partnership}}',
+            [
+                'priority' => $priority,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ],
+            ['id' => $id],
+        )->execute();
+
+        $isAjax = strtolower($request->getHeaderLine('X-Requested-With')) === 'xmlhttprequest';
+        if ($isAjax) {
+            return $this->responseFactory->createResponse(Status::NO_CONTENT);
+        }
+
+        return $this->redirect('admin/partnerships');
+    }
+
     /**
      * @param array<string, mixed> $data
      * @return array<string, mixed>
@@ -210,14 +242,18 @@ final class AdminController
     {
         $projectsRu = Partnership::decodeJson($data['subtasks'] ?? null);
         $projectsEn = Partnership::decodeJson($data['subtasks_en'] ?? null);
+        $projectsKz = Partnership::decodeJson($data['subtasks_kz'] ?? null);
         $projectsRu = is_array($projectsRu) ? $projectsRu : [];
         $projectsEn = is_array($projectsEn) ? $projectsEn : [];
+        $projectsKz = is_array($projectsKz) ? $projectsKz : [];
 
         $projectsRu = $this->partnershipMergeProjectImagesForLocale($request, $projectsRu, 'ru');
         $projectsEn = $this->partnershipMergeProjectImagesForLocale($request, $projectsEn, 'en');
+        $projectsKz = $this->partnershipMergeProjectImagesForLocale($request, $projectsKz, 'kz');
 
         $data['subtasks'] = Partnership::encodeJson($projectsRu);
         $data['subtasks_en'] = Partnership::encodeJson($projectsEn);
+        $data['subtasks_kz'] = Partnership::encodeJson($projectsKz);
 
         return $data;
     }
@@ -318,7 +354,7 @@ final class AdminController
     private function partnershipDataFromRequest(ServerRequestInterface $request): array
     {
         $body = $request->getParsedBody() ?? [];
-        $formLocale = Lang::get() === 'en' ? 'en' : 'ru';
+        $formLocale = in_array(Lang::get(), ['ru', 'en', 'kz'], true) ? Lang::get() : 'ru';
 
         $coopKeys = is_array($body['cooperation_directions'] ?? null) ? $body['cooperation_directions'] : [];
         $coopDesc = is_array($body['cooperation_directions_desc'] ?? null) ? $body['cooperation_directions_desc'] : [];
@@ -359,11 +395,7 @@ final class AdminController
         }
         $projectsRu = $this->parseProjectsJson((string) ($body['projects_json_ru'] ?? ''));
         $projectsEn = $this->parseProjectsJson((string) ($body['projects_json_en'] ?? ''));
-        if ($projectsRu === [] && $projectsEn !== []) {
-            $projectsRu = $projectsEn;
-        } elseif ($projectsEn === [] && $projectsRu !== []) {
-            $projectsEn = $projectsRu;
-        }
+        $projectsKz = $this->parseProjectsJson((string) ($body['projects_json_kz'] ?? ''));
 
         $eventsRaw = trim((string) ($body['events'] ?? ''));
         $events = [];
@@ -374,14 +406,26 @@ final class AdminController
 
         $orgNameRu = trim((string) ($body['org_name_ru'] ?? $body['org_name'] ?? ''));
         $orgNameEn = trim((string) ($body['org_name_en'] ?? ''));
+        $orgNameKz = trim((string) ($body['org_name_kz'] ?? ''));
         $descriptionRu = trim((string) ($body['description_ru'] ?? $body['description'] ?? ''));
         $descriptionEn = trim((string) ($body['description_en'] ?? ''));
+        $descriptionKz = trim((string) ($body['description_kz'] ?? ''));
+        $countryRu = trim((string) ($body['country_ru'] ?? $body['country'] ?? ''));
+        $countryEn = trim((string) ($body['country_en'] ?? ''));
+        $countryKz = trim((string) ($body['country_kz'] ?? ''));
+        $cityRu = trim((string) ($body['city_ru'] ?? $body['city'] ?? ''));
+        $cityEn = trim((string) ($body['city_en'] ?? ''));
+        $cityKz = trim((string) ($body['city_kz'] ?? ''));
 
         $emptyJson = Partnership::encodeJson([]);
         $base = [
             'org_type' => $orgType,
-            'country' => trim((string) ($body['country'] ?? '')),
-            'city' => trim((string) ($body['city'] ?? '')),
+            'country' => $countryRu,
+            'country_en' => $countryEn,
+            'country_kz' => $countryKz,
+            'city' => $cityRu,
+            'city_en' => $cityEn,
+            'city_kz' => $cityKz,
             'website' => trim((string) ($body['website'] ?? '')),
             'contact_name' => trim((string) ($body['contact_name'] ?? '')),
             'contact_position' => trim((string) ($body['contact_position'] ?? '')),
@@ -396,27 +440,20 @@ final class AdminController
             '__form_locale' => $formLocale,
             'subtasks' => Partnership::encodeJson($projectsRu),
             'subtasks_en' => Partnership::encodeJson($projectsEn),
+            'subtasks_kz' => Partnership::encodeJson($projectsKz),
         ];
-
-        if ($formLocale === 'en') {
-            $base['org_name'] = $orgNameRu;
-            $base['org_name_en'] = $orgNameEn;
-            $base['description'] = $descriptionRu;
-            $base['description_en'] = $descriptionEn;
-            $base['subtasks'] = $base['subtasks'] ?? $emptyJson;
-            $base['subtasks_en'] = $base['subtasks_en'] ?? $emptyJson;
-            $base['goals'] = $emptyJson;
-            $base['goals_en'] = $emptyJson;
-        } else {
-            $base['org_name'] = $orgNameRu;
-            $base['org_name_en'] = $orgNameEn;
-            $base['description'] = $descriptionRu;
-            $base['description_en'] = $descriptionEn;
-            $base['subtasks'] = $base['subtasks'] ?? $emptyJson;
-            $base['subtasks_en'] = $base['subtasks_en'] ?? $emptyJson;
-            $base['goals'] = $emptyJson;
-            $base['goals_en'] = $emptyJson;
-        }
+        $base['org_name'] = $orgNameRu;
+        $base['org_name_en'] = $orgNameEn;
+        $base['org_name_kz'] = $orgNameKz;
+        $base['description'] = $descriptionRu;
+        $base['description_en'] = $descriptionEn;
+        $base['description_kz'] = $descriptionKz;
+        $base['subtasks'] = $base['subtasks'] ?? $emptyJson;
+        $base['subtasks_en'] = $base['subtasks_en'] ?? $emptyJson;
+        $base['subtasks_kz'] = $base['subtasks_kz'] ?? $emptyJson;
+        $base['goals'] = $emptyJson;
+        $base['goals_en'] = $emptyJson;
+        $base['goals_kz'] = $emptyJson;
 
         return $base;
     }
@@ -440,6 +477,9 @@ final class AdminController
         $parsed['goals_en'] = (string) ($model['goals_en'] ?? '') !== ''
             ? (string) $model['goals_en']
             : Partnership::encodeJson([]);
+        $parsed['goals_kz'] = (string) ($model['goals_kz'] ?? '') !== ''
+            ? (string) $model['goals_kz']
+            : Partnership::encodeJson([]);
 
         return $parsed;
     }
@@ -454,7 +494,7 @@ final class AdminController
      */
     private function partnershipFormModelForView(?array $model, array $parsed, array $merged): array
     {
-        $formLocale = Lang::get() === 'en' ? 'en' : 'ru';
+        $formLocale = in_array(Lang::get(), ['ru', 'en', 'kz'], true) ? Lang::get() : 'ru';
         $empty = Partnership::encodeJson([]);
         $out = array_merge($model ?? [], $merged);
         unset($out['__form_locale'], $out['_form_locale']);
@@ -464,6 +504,11 @@ final class AdminController
             $out['description_en'] = (string) ($parsed['description_en'] ?? $out['description_en'] ?? '');
             $out['subtasks_en'] = (string) ($parsed['subtasks_en'] ?? $out['subtasks_en'] ?? $empty);
             $out['goals_en'] = (string) ($parsed['goals_en'] ?? $out['goals_en'] ?? $empty);
+        } elseif ($formLocale === 'kz') {
+            $out['org_name_kz'] = (string) ($parsed['org_name_kz'] ?? $out['org_name_kz'] ?? '');
+            $out['description_kz'] = (string) ($parsed['description_kz'] ?? $out['description_kz'] ?? '');
+            $out['subtasks_kz'] = (string) ($parsed['subtasks_kz'] ?? $out['subtasks_kz'] ?? $empty);
+            $out['goals_kz'] = (string) ($parsed['goals_kz'] ?? $out['goals_kz'] ?? $empty);
         } else {
             $out['org_name'] = (string) ($parsed['org_name'] ?? $out['org_name'] ?? '');
             $out['description'] = (string) ($parsed['description'] ?? $out['description'] ?? '');
@@ -477,16 +522,28 @@ final class AdminController
     private function partnershipValidate(array $data, bool $isCreate = false, ?string $logoPath = null): array
     {
         $errors = [];
-        if (trim((string) ($data['org_name'] ?? '')) === '' && trim((string) ($data['org_name_en'] ?? '')) === '') {
+        if (
+            trim((string) ($data['org_name'] ?? '')) === ''
+            && trim((string) ($data['org_name_en'] ?? '')) === ''
+            && trim((string) ($data['org_name_kz'] ?? '')) === ''
+        ) {
             $errors[] = Lang::t('admin_err_org_name');
         }
         if ($data['org_type'] === '') {
             $errors[] = Lang::t('admin_err_org_type');
         }
-        if ($data['country'] === '') {
+        if (
+            trim((string) ($data['country'] ?? '')) === ''
+            && trim((string) ($data['country_en'] ?? '')) === ''
+            && trim((string) ($data['country_kz'] ?? '')) === ''
+        ) {
             $errors[] = Lang::t('admin_err_country');
         }
-        if ($data['city'] === '') {
+        if (
+            trim((string) ($data['city'] ?? '')) === ''
+            && trim((string) ($data['city_en'] ?? '')) === ''
+            && trim((string) ($data['city_kz'] ?? '')) === ''
+        ) {
             $errors[] = Lang::t('admin_err_city');
         }
         if ($data['contact_name'] === '') {
@@ -511,6 +568,7 @@ final class AdminController
         if (
             trim((string) ($data['description'] ?? '')) === ''
             && trim((string) ($data['description_en'] ?? '')) === ''
+            && trim((string) ($data['description_kz'] ?? '')) === ''
         ) {
             $errors[] = Lang::t('admin_err_description');
         }

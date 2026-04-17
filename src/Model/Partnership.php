@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Model;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\Query;
 
 final class Partnership
@@ -16,12 +17,14 @@ final class Partnership
         $q = (new Query($db))
             ->from(self::TABLE)
             ->where(['published' => 1])
-            ->orderBy(['created_at' => SORT_DESC]);
+            ->orderBy(new Expression('CASE WHEN priority <= 0 THEN 1 ELSE 0 END ASC'))
+            ->addOrderBy(['priority' => SORT_ASC, 'created_at' => SORT_DESC]);
         if ($search !== null && $search !== '') {
             $q->andWhere([
                 'or',
                 ['like', 'org_name', $search],
                 ['like', 'org_name_en', $search],
+                ['like', 'org_name_kz', $search],
             ]);
         }
         $rows = $q->all();
@@ -36,7 +39,11 @@ final class Partnership
 
     public static function findAll(ConnectionInterface $db): array
     {
-        $rows = (new Query($db))->from(self::TABLE)->orderBy(['created_at' => SORT_DESC])->all();
+        $rows = (new Query($db))
+            ->from(self::TABLE)
+            ->orderBy(new Expression('CASE WHEN priority <= 0 THEN 1 ELSE 0 END ASC'))
+            ->addOrderBy(['priority' => SORT_ASC, 'created_at' => SORT_DESC])
+            ->all();
         return is_array($rows) ? $rows : [];
     }
 
