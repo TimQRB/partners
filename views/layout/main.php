@@ -36,6 +36,7 @@ $this->beginPage();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= Html::encode($this->getTitle() ?? Lang::t('site_title')) ?></title>
+    <link rel="icon" href="/Vector.svg" type="image/svg+xml">
     <link
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
         rel="stylesheet">
