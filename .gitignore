@@ -29,3 +29,12 @@ c3.php
 .env
 .env.local
 docker/dev/override.env
+
+public/uploads/partnerships/
+public/uploads/description/
+public/uploads/materials/
+public/uploads/projects/
+!public/uploads/partnerships/.gitkeep
+!public/uploads/description/.gitkeep
+!public/uploads/materials/.gitkeep
+!public/uploads/projects/.gitkeep
