@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4303a2229783902816eda27ad1662ed3",
+    "content-hash": "c34d70d091ec4cc6c864dcb75cec8d67",
     "packages": [
         {
             "name": "alexkart/curl-builder",
@@ -1789,85 +1789,6 @@
             "time": "2025-12-19T19:11:23+00:00"
         },
         {
-            "name": "yiisoft/cookies",
-            "version": "1.2.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/yiisoft/cookies.git",
-                "reference": "7d83b86282b14fbf11c3bc7c01f0739c583d4421"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/cookies/zipball/7d83b86282b14fbf11c3bc7c01f0739c583d4421",
-                "reference": "7d83b86282b14fbf11c3bc7c01f0739c583d4421",
-                "shasum": ""
-            },
-            "require": {
-                "php": "7.4.* || 8.0 - 8.5",
-                "psr/http-message": "^1.0 || ^2.0",
-                "psr/http-message-implementation": "1.0",
-                "psr/http-server-handler": "^1.0",
-                "psr/http-server-middleware": "^1.0",
-                "psr/log": "^1.1 || ^2.0 || ^3.0",
-                "yiisoft/http": "^1.2",
-                "yiisoft/security": "^1.0",
-                "yiisoft/strings": "^2.0"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.3",
-                "httpsoft/http-message": "^1.1.6",
-                "maglnet/composer-require-checker": "^3.8 || ^4.2",
-                "phpunit/phpunit": "^9.6.22",
-                "psr/clock": "^1.0",
-                "rector/rector": "^2.0.11",
-                "spatie/phpunit-watcher": "^1.23.6",
-                "yiisoft/test-support": "^1.4"
-            },
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": true,
-                    "forward-command": true,
-                    "target-directory": "tools"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Yiisoft\\Cookies\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Convenient way to use cookies with PSR-7",
-            "homepage": "https://www.yiiframework.com/",
-            "keywords": [
-                "cookie",
-                "cookies",
-                "psr-7"
-            ],
-            "support": {
-                "chat": "https://t.me/yii3en",
-                "forum": "https://www.yiiframework.com/forum/",
-                "irc": "ircs://irc.libera.chat:6697/yii",
-                "issues": "https://github.com/yiisoft/cookies/issues?state=open",
-                "source": "https://github.com/yiisoft/cookies",
-                "wiki": "https://www.yiiframework.com/wiki/"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/sponsors/yiisoft",
-                    "type": "github"
-                },
-                {
-                    "url": "https://opencollective.com/yiisoft",
-                    "type": "opencollective"
-                }
-            ],
-            "time": "2025-12-08T12:51:15+00:00"
-        },
-        {
             "name": "yiisoft/csrf",
             "version": "2.2.3",
             "source": {
@@ -2538,28 +2459,30 @@
         },
         {
             "name": "yiisoft/files",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/files.git",
-                "reference": "465650fd9e4295669f42ab7e9fec2386700540a7"
+                "reference": "6d1bd963afe514ec8be6e090e021659870bd2830"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/files/zipball/465650fd9e4295669f42ab7e9fec2386700540a7",
-                "reference": "465650fd9e4295669f42ab7e9fec2386700540a7",
+                "url": "https://api.github.com/repos/yiisoft/files/zipball/6d1bd963afe514ec8be6e090e021659870bd2830",
+                "reference": "6d1bd963afe514ec8be6e090e021659870bd2830",
                 "shasum": ""
             },
             "require": {
-                "php": "8.0 - 8.5",
+                "php": "8.0 - 8.6",
                 "yiisoft/strings": "^2.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.3",
+                "bamarni/composer-bin-plugin": "^1.9.1",
                 "ext-zlib": "*",
-                "maglnet/composer-require-checker": "^4.4",
+                "friendsofphp/php-cs-fixer": "^3.66",
+                "phpstan/phpstan": "^2.3",
                 "phpunit/phpunit": "^9.6.22",
                 "rector/rector": "^2.0.10",
+                "shipmonk/composer-dependency-analyser": "^1.8",
                 "spatie/phpunit-watcher": "^1.23.6"
             },
             "type": "library",
@@ -2602,7 +2525,7 @@
                     "type": "opencollective"
                 }
             ],
-            "time": "2025-12-01T06:30:27+00:00"
+            "time": "2026-10-30T07:44:19+00:00"
         },
         {
             "name": "yiisoft/friendly-exception",
@@ -3967,16 +3890,16 @@
         },
         {
             "name": "yiisoft/session",
-            "version": "3.0.1",
+            "version": "3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/session.git",
-                "reference": "755e15352181995b69a4f293a06a128e0569915d"
+                "reference": "04ed22965561ed8729137355f1d93d9c1dc633d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/session/zipball/755e15352181995b69a4f293a06a128e0569915d",
-                "reference": "755e15352181995b69a4f293a06a128e0569915d",
+                "url": "https://api.github.com/repos/yiisoft/session/zipball/04ed22965561ed8729137355f1d93d9c1dc633d0",
+                "reference": "04ed22965561ed8729137355f1d93d9c1dc633d0",
                 "shasum": ""
             },
             "require": {
@@ -3984,17 +3907,19 @@
                 "psr/http-message": "^1.0 || ^2.0",
                 "psr/http-message-implementation": "1.0",
                 "psr/http-server-handler": "^1.0",
-                "psr/http-server-middleware": "^1.0",
-                "yiisoft/cookies": "^1.0"
+                "psr/http-server-middleware": "^1.0"
             },
             "require-dev": {
-                "maglnet/composer-require-checker": "^4.4",
+                "bamarni/composer-bin-plugin": "*",
+                "friendsofphp/php-cs-fixer": "^3.95",
                 "nyholm/psr7": "^1.8.2",
                 "phpunit/phpunit": "^9.6.22",
                 "rector/rector": "^2.0.10",
                 "roave/infection-static-analysis-plugin": "^1.25",
+                "shipmonk/composer-dependency-analyser": "^1.8",
                 "spatie/phpunit-watcher": "^1.23.6",
                 "vimeo/psalm": "^4.30 || ^5.6 || ^6.8.8",
+                "yiisoft/code-style": "^1.0",
                 "yiisoft/di": "^1.2.1"
             },
             "suggest": {
@@ -4002,6 +3927,11 @@
             },
             "type": "library",
             "extra": {
+                "bamarni-bin": {
+                    "bin-links": true,
+                    "forward-command": true,
+                    "target-directory": "tools"
+                },
                 "config-plugin": {
                     "di-web": "di-web.php",
                     "params": "params.php"
@@ -4045,33 +3975,36 @@
                     "type": "opencollective"
                 }
             ],
-            "time": "2025-12-17T13:15:55+00:00"
+            "time": "2026-09-30T06:31:12+00:00"
         },
         {
             "name": "yiisoft/strings",
-            "version": "2.7.0",
+            "version": "2.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/strings.git",
-                "reference": "9bc7fea56374619cccd4587848029fe97f98bb33"
+                "reference": "f11eb6562b09326602b02827d2f6f237154359a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/strings/zipball/9bc7fea56374619cccd4587848029fe97f98bb33",
-                "reference": "9bc7fea56374619cccd4587848029fe97f98bb33",
+                "url": "https://api.github.com/repos/yiisoft/strings/zipball/f11eb6562b09326602b02827d2f6f237154359a1",
+                "reference": "f11eb6562b09326602b02827d2f6f237154359a1",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": "8.1 - 8.5"
+                "php": "8.1 - 8.6"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
-                "maglnet/composer-require-checker": "^4.7.1",
+                "friendsofphp/php-cs-fixer": "^3.95",
                 "phpbench/phpbench": "^1.4.1",
+                "phpstan/phpstan": "^2.3",
                 "phpunit/phpunit": "^10.5.48",
                 "rector/rector": "^2.1.2",
-                "spatie/phpunit-watcher": "^1.24"
+                "shipmonk/composer-dependency-analyser": "^1.8",
+                "spatie/phpunit-watcher": "^1.24",
+                "yiisoft/code-style": "^1.0"
             },
             "type": "library",
             "extra": {
@@ -4115,7 +4048,7 @@
                     "type": "opencollective"
                 }
             ],
-            "time": "2025-11-23T18:00:58+00:00"
+            "time": "2026-10-30T06:57:22+00:00"
         },
         {
             "name": "yiisoft/translator",
@@ -4376,16 +4309,16 @@
         },
         {
             "name": "yiisoft/view",
-            "version": "12.2.3",
+            "version": "12.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/view.git",
-                "reference": "addebc5033875ba4ed5efb2d824e71ad2200d648"
+                "reference": "eaf52e6ba92ce6b622a6718bda295f8383964e12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/view/zipball/addebc5033875ba4ed5efb2d824e71ad2200d648",
-                "reference": "addebc5033875ba4ed5efb2d824e71ad2200d648",
+                "url": "https://api.github.com/repos/yiisoft/view/zipball/eaf52e6ba92ce6b622a6718bda295f8383964e12",
+                "reference": "eaf52e6ba92ce6b622a6718bda295f8383964e12",
                 "shasum": ""
             },
             "require": {
@@ -4393,7 +4326,7 @@
                 "yiisoft/arrays": "^2.0 || ^3.0",
                 "yiisoft/cache": "^1.0 || ^2.0 || ^3.0",
                 "yiisoft/files": "^1.0 || ^2.0",
-                "yiisoft/html": "^2.5 || ^3.0",
+                "yiisoft/html": "^2.5 || ^3.0 || ^4.0",
                 "yiisoft/json": "^1.0"
             },
             "require-dev": {
@@ -4459,7 +4392,7 @@
                     "type": "opencollective"
                 }
             ],
-            "time": "2026-01-26T06:13:36+00:00"
+            "time": "2026-03-18T10:35:05+00:00"
         },
         {
             "name": "yiisoft/yii-console",
@@ -4940,16 +4873,16 @@
         },
         {
             "name": "yiisoft/yii-view-renderer",
-            "version": "7.4.0",
+            "version": "7.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii-view-renderer.git",
-                "reference": "ebd47ec16c90609470f2206a193bbe6b23e37763"
+                "reference": "12d788cf635657138513ea314ecca0078dfb127f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii-view-renderer/zipball/ebd47ec16c90609470f2206a193bbe6b23e37763",
-                "reference": "ebd47ec16c90609470f2206a193bbe6b23e37763",
+                "url": "https://api.github.com/repos/yiisoft/yii-view-renderer/zipball/12d788cf635657138513ea314ecca0078dfb127f",
+                "reference": "12d788cf635657138513ea314ecca0078dfb127f",
                 "shasum": ""
             },
             "require": {
@@ -4961,7 +4894,7 @@
                 "yiisoft/csrf": "^1.2 || ^2.0",
                 "yiisoft/data-response": "^2.2",
                 "yiisoft/friendly-exception": "^1.0",
-                "yiisoft/html": "^2.5 || ^3.0",
+                "yiisoft/html": "^2.5 || ^3.0 || ^4.0",
                 "yiisoft/strings": "^2.0",
                 "yiisoft/view": "^12"
             },
@@ -5031,7 +4964,7 @@
                     "type": "opencollective"
                 }
             ],
-            "time": "2026-02-24T05:36:10+00:00"
+            "time": "2026-03-18T13:13:58+00:00"
         }
     ],
     "packages-dev": [
@@ -12099,5 +12032,5 @@
         "ext-filter": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
